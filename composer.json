@@ -5,6 +5,7 @@
     "require": {
         "php": "^8.3",
         "filament/filament": "^3.2.71",
+        "jeffgreco13/filament-breezy": "^2.4",
         "laravel/framework": "^11.5",
         "laravel/tinker": "^2.9"
     },
