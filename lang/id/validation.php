@@ -38,7 +38,7 @@ return [
     'distinct'             => ':Attribute memiliki nilai yang duplikat.',
     'doesnt_end_with'      => ':Attribute tidak boleh diakhiri dengan salah satu dari berikut ini: :values.',
     'doesnt_start_with'    => ':Attribute tidak boleh dimulai dengan salah satu dari berikut ini: :values.',
-    'email'                => ':Attribute harus berupa alamat surel yang valid.',
+    'email'                => ':Attribute harus berupa alamat email yang valid.',
     'ends_with'            => ':Attribute harus diakhiri salah satu dari berikut: :values',
     'enum'                 => ':Attribute yang dipilih tidak valid.',
     'exists'               => ':Attribute yang dipilih tidak valid.',
