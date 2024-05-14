@@ -42,7 +42,11 @@ class RelationStrategy extends Strategy
 
         static $modelMethods = get_class_methods(Model::class);
 
-        return Debugbar::measure('Load Label Relation', function () use (&$cache, $model, $modelMethods) {
+        static $measure = class_exists(Debugbar::class)
+            ? Debugbar::measure(...)
+            : fn(string $label, Closure $closure) => $closure();
+
+        return $measure('Load Label Relation', function () use (&$cache, $model, $modelMethods) {
             $modelMethods = array_diff(get_class_methods($model), $modelMethods);
 
             /** @var Model $class */

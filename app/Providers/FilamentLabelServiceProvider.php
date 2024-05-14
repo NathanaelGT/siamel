@@ -10,6 +10,7 @@ use App\Providers\Filament\Label\ModelStrategy;
 use App\Providers\Filament\Label\RelationColumnStrategy;
 use App\Providers\Filament\Label\RelationStrategy;
 use Barryvdh\Debugbar\Facades\Debugbar;
+use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\Component as InfolistComponent;
@@ -46,14 +47,14 @@ class FilamentLabelServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::BODY_END,
             function () use ($start, $end) {
-                Debugbar::addMeasure('Configures Label', $start, $end);
+                static::addMeasure('Configures Label', $start, $end);
 
                 foreach (static::$time as $label => [$start, $end]) {
                     $elapsed = (($end - $start) / 1000000) . 'ms';
-                    Debugbar::addMessage("$label: $elapsed", 'debug');
+                    static::addMessage("$label: $elapsed", 'debug');
 
                     if (str($label)->contains('found')) {
-                        Debugbar::addMessage('');
+                        static::addMessage('');
                     }
                 }
             },
@@ -64,22 +65,32 @@ class FilamentLabelServiceProvider extends ServiceProvider
     {
         Field::configureUsing(function (Field $field): void {
             if ($field instanceof Select && ($relationship = $field->getRelationship()) !== null) {
-                $field->label(fn() => Debugbar::measure('Label', fn() => $this->label($relationship, $field->getRelationshipTitleAttribute())));
+                $field->label(fn() => static::measure('Label', function () use ($relationship, $field) {
+                    $this->label($relationship, $field->getRelationshipTitleAttribute());
+                }));
             } else {
-                $field->label(fn() => Debugbar::measure('Label', fn() => $this->label($field->getModel(), $field->getName())));
+                $field->label(fn() => static::measure('Label', function () use ($field) {
+                    $this->label($field->getModel(), $field->getName());
+                }));
             }
         });
 
         Column::configureUsing(function (Column $column): void {
-            $column->label(fn() => Debugbar::measure('Label', fn() => $this->label($column->getTable()->getModel(), $column->getName())));
+            $column->label(fn() => static::measure('Label', function () use ($column) {
+                $this->label($column->getTable()->getModel(), $column->getName());
+            }));
         });
 
         BaseFilter::configureUsing(function (BaseFilter $filter): void {
-            $filter->label(fn() => Debugbar::measure('Label', fn() => $this->label($filter->getTable()->getModel(), $filter->getName())));
+            $filter->label(fn() => static::measure('Label', function () use ($filter) {
+                $this->label($filter->getTable()->getModel(), $filter->getName());
+            }));
         });
 
         InfolistComponent::configureUsing(function (InfolistComponent $infolist): void {
-            $infolist->label(fn() => $this->label($infolist->getRecord()::class, $infolist->getName()));
+            $infolist->label(function () use ($infolist) {
+                $this->label($infolist->getRecord()::class, $infolist->getName());
+            });
         });
     }
 
@@ -97,7 +108,7 @@ class FilamentLabelServiceProvider extends ServiceProvider
                 $langLastModified = 0;
                 $cacheLastModified = 1;
             } else {
-                [$langLastModified, $cacheLastModified] = Debugbar::measure(
+                [$langLastModified, $cacheLastModified] = static::measure(
                     'Compare Label Cache',
                     function () use ($locale, $labelCachePath) {
                         try {
@@ -113,7 +124,7 @@ class FilamentLabelServiceProvider extends ServiceProvider
             }
 
             if ($langLastModified < $cacheLastModified) {
-                Debugbar::measure('Require Label Cache', function () use ($labelCachePath) {
+                static::measure('Require Label Cache', function () use ($labelCachePath) {
                     try {
                         static::$cache = static::$fs->getRequire($labelCachePath);
                     } catch (FileNotFoundException) {
@@ -154,7 +165,7 @@ class FilamentLabelServiceProvider extends ServiceProvider
             static::loadCache();
         }
 
-        return Debugbar::measure('Get Label', function () use ($model, $column) {
+        return static::measure('Get Label', function () use ($model, $column) {
             $column ??= ' __name__ ';
             $m = basename($model);
             $start = hrtime(true);
@@ -209,5 +220,40 @@ class FilamentLabelServiceProvider extends ServiceProvider
                 $end($start, DefaultStrategy::class, 'found');
             }
         });
+    }
+
+    protected static function measure(string $label, Closure $closure, ?string $collector = null): mixed
+    {
+        static $exists = class_exists(Debugbar::class);
+
+        if ($exists) {
+            return Debugbar::measure($label, $closure, $collector);
+        }
+
+        return $closure();
+    }
+
+    protected static function addMeasure(
+        string $label,
+        float $start,
+        float $end,
+        ?array $params = [],
+        ?string $collector = null
+    ): void
+    {
+        static $exists = class_exists(Debugbar::class);
+
+        if ($exists) {
+            Debugbar::addMeasure($label, $start, $end, $params, $collector);
+        }
+    }
+
+    protected static function addMessage(mixed $message, string $label = 'info'): void
+    {
+        static $exists = class_exists(Debugbar::class);
+
+        if ($exists) {
+            Debugbar::addMessage($message, $label);
+        }
     }
 }
