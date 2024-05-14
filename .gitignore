@@ -1,9 +1,9 @@
 /.phpunit.cache
 /node_modules
 /public/build
-/public/css/filament
+/public/css
 /public/hot
-/public/js/filament
+/public/js
 /public/storage
 /storage/*.key
 /vendor
