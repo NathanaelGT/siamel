@@ -3,23 +3,23 @@
 namespace App\Filament\Staff\Resources;
 
 use App\Filament\Resource;
-use App\Filament\Staff\Resources\FacultyResource\Pages;
-use App\Filament\Staff\Resources\FacultyResource\RelationManagers;
-use App\Models\Faculty;
+use App\Filament\Staff\Resources\BuildingResource\Pages;
+use App\Filament\Staff\Resources\BuildingResource\RelationManagers;
+use App\Models\Building;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class FacultyResource extends Resource
+class BuildingResource extends Resource
 {
-    protected static ?string $model = Faculty::class;
+    protected static ?string $model = Building::class;
 
     protected static ?string $navigationGroup = 'Fasilitas';
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -30,27 +30,28 @@ class FacultyResource extends Resource
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
 
-                Forms\Components\Select::make('accreditation')
-                    ->options([
-                        'A',
-                        'B',
-                        'C',
-                    ])
-                    ->default('Tidak ada')
-                    ->searchable()
-                    ->required(),
+                Forms\Components\Select::make('faculty_id')
+                    ->relationship('faculty', 'name'),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->paginated(false)
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
 
-                Tables\Columns\TextColumn::make('accreditation'),
+                Tables\Columns\TextColumn::make('rooms_count')
+                    ->counts('rooms')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('faculty.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -72,18 +73,17 @@ class FacultyResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\StudyProgramsRelationManager::class,
-            RelationManagers\BuildingsRelationManager::class,
+            RelationManagers\RoomsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListFaculties::route('/'),
-            'create' => Pages\CreateFaculty::route('/baru'),
-            'view'   => Pages\ViewFaculty::route('/{record}'),
-            'edit'   => Pages\EditFaculty::route('/{record}/edit'),
+            'index'  => Pages\ListBuildings::route('/'),
+            'create' => Pages\CreateBuilding::route('/baru'),
+            'view'   => Pages\ViewBuilding::route('/{record}'),
+            'edit'   => Pages\EditBuilding::route('/{record}/edit'),
         ];
     }
 }
