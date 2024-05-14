@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
-enum EducationLevel: string
+use Filament\Support\Contracts\HasLabel;
+
+enum EducationLevel: string implements HasLabel
 {
+    use Concerns\Label;
+
     case S1 = 'S1';
     case S2 = 'S2';
     case S3 = 'S3';

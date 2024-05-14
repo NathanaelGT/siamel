@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\EducationLevel;
+use App\Observers\StudyProgramObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy(StudyProgramObserver::class)]
 class StudyProgram extends Model
 {
     use HasFactory;
@@ -16,6 +19,9 @@ class StudyProgram extends Model
 
     protected $fillable = [
         'name',
+        'slug',
+        'faculty_id',
+        'level',
     ];
 
     protected function casts(): array
@@ -23,6 +29,11 @@ class StudyProgram extends Model
         return [
             'level' => EducationLevel::class,
         ];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
     public function faculty(): BelongsTo
@@ -33,5 +44,10 @@ class StudyProgram extends Model
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class);
+    }
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
     }
 }

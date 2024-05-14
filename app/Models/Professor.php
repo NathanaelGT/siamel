@@ -6,10 +6,13 @@ use App\Enums\EmployeeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Professor extends Model implements Contracts\HasAccountContract
 {
     use Concerns\HasAccount, HasFactory;
+
+    public $incrementing = false;
 
     public $timestamps = false;
 
@@ -27,5 +30,10 @@ class Professor extends Model implements Contracts\HasAccountContract
     public function faculty(): BelongsTo
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    public function courses(): BelongsToMany
+    {
+        return $this->belongsToMany(Course::class);
     }
 }

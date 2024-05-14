@@ -15,6 +15,7 @@ class Faculty extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'accreditation',
     ];
 
@@ -23,6 +24,11 @@ class Faculty extends Model
         return [
             'accreditation' => Accreditation::class,
         ];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
     public function studyPrograms(): HasMany

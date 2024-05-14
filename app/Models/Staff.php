@@ -11,9 +11,14 @@ class Staff extends Model implements Contracts\HasAccountContract
 {
     use Concerns\HasAccount, HasFactory;
 
+    public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
+        'user_id',
+        'faculty_id',
         'status',
     ];
 
