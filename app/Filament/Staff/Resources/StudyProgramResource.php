@@ -110,6 +110,7 @@ class StudyProgramResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\CoursesRelationManager::class,
             RelationManagers\StudentsRelationManager::class,
         ];
     }

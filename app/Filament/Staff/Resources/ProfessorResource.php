@@ -6,6 +6,7 @@ use App\Enums\EmployeeStatus;
 use App\Enums\Gender;
 use App\Filament\Resource;
 use App\Filament\Staff\Resources\ProfessorResource\Pages;
+use App\Filament\Staff\Resources\ProfessorResource\RelationManagers;
 use App\Filament\Tables\Columns\AvatarColumn;
 use App\Models\Faculty;
 use App\Models\Professor;
@@ -166,7 +167,7 @@ class ProfessorResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CoursesRelationManager::class,
         ];
     }
 
