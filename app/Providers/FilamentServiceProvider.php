@@ -2,19 +2,32 @@
 
 namespace App\Providers;
 
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Table;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\ServiceProvider;
 
 class FilamentServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->bind();
         $this->registerAssets();
         $this->setStaticProperties();
         $this->configures();
+
+        VerifyEmail::createUrlUsing(Filament::getVerifyEmailUrl(...));
+    }
+
+    protected function bind(): void
+    {
+        $this->app->bind(
+            \Filament\Http\Responses\Auth\Contracts\PasswordResetResponse::class,
+            \App\Http\Responses\Auth\PasswordResetResponse::class,
+        );
     }
 
     protected function registerAssets(): void

@@ -4,6 +4,8 @@ namespace App\Filament;
 
 use App\Http\Middleware\Authenticate;
 use App\Livewire\Pages\Auth\Login;
+use App\Livewire\Pages\Auth\RequestPasswordReset;
+use App\Livewire\Pages\Auth\ResetPassword;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
@@ -27,6 +29,7 @@ abstract class FilamentPanel
         return $panel
             ->spa()
             ->login(Login::class)
+            ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             ->discoverPages(in: app_path("Filament/$name/Pages"), for: "App\\Filament\\$name\\Pages")
             ->discoverWidgets(in: app_path("Filament/$name/Widgets"), for: "App\\Filament\\$name\\Widgets")
             ->discoverResources(in: app_path("Filament/$name/Resources"), for: "App\\Filament\\$name\\Resources")
