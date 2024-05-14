@@ -7,6 +7,7 @@ use App\Enums\Role;
 use App\Enums\StudentStatus;
 use App\Filament\Resource;
 use App\Filament\Staff\Resources\StudyProgramResource\Pages;
+use App\Filament\Staff\Resources\StudyProgramResource\RelationManagers;
 use App\Models\StudyProgram;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -109,7 +110,7 @@ class StudyProgramResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\StudentsRelationManager::class,
         ];
     }
 
