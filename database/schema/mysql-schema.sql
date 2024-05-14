@@ -344,7 +344,6 @@ CREATE TABLE `subjects`
     `start_time`   time                                    NOT NULL,
     `year` year NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `subjects_course_id_parallel_year_unique` (`course_id`,`parallel`,`year`),
     KEY            `subjects_professor_id_foreign` (`professor_id`),
     KEY            `subjects_room_id_foreign` (`room_id`),
     CONSTRAINT `subjects_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`),
