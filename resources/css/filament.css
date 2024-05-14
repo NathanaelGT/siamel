@@ -1,0 +1,51 @@
+:root {
+    --sidebar-width: 14rem !important;
+}
+
+.dark {
+    .fi-sidebar-nav {
+        --tw-ring-color: hsla(0, 0%, 100%, .1);
+
+        background-color: rgb(var(--gray-900));
+    }
+}
+
+.fi-sidebar > :first-child {
+    z-index: 1;
+}
+
+.fi-sidebar-nav {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    --tw-ring-color: rgba(var(--gray-950), 0.05);
+
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+
+    background-color: #fff;
+}
+
+.fi-sidebar-nav-groups {
+    row-gap: 0.5rem !important;
+}
+
+.fi-page-sub-navigation-sidebar {
+    width: 10rem !important;
+}
+
+.input-no-arrow::-webkit-outer-spin-button,
+.input-no-arrow::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.input-no-arrow[type=number] {
+    -moz-appearance: textfield;
+}
+
+td.fc-day-sun,
+td.fc-day-sat {
+    &:not(.custom) .fc-daygrid-day-number {
+        color: #dc2626;
+        font-weight: bold;
+    }
+}
