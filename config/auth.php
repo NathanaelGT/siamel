@@ -112,4 +112,13 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | User Invitation Timeout
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    'invitation_timeout' => env('AUTH_INVITATION_TIMEOUT', 60 * 60 * 24),
+
 ];
