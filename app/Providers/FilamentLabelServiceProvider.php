@@ -66,30 +66,30 @@ class FilamentLabelServiceProvider extends ServiceProvider
         Field::configureUsing(function (Field $field): void {
             if ($field instanceof Select && ($relationship = $field->getRelationship()) !== null) {
                 $field->label(fn() => static::measure('Label', function () use ($relationship, $field) {
-                    $this->label($relationship, $field->getRelationshipTitleAttribute());
+                    return $this->label($relationship, $field->getRelationshipTitleAttribute());
                 }));
             } else {
                 $field->label(fn() => static::measure('Label', function () use ($field) {
-                    $this->label($field->getModel(), $field->getName());
+                    return $this->label($field->getModel(), $field->getName());
                 }));
             }
         });
 
         Column::configureUsing(function (Column $column): void {
             $column->label(fn() => static::measure('Label', function () use ($column) {
-                $this->label($column->getTable()->getModel(), $column->getName());
+                return $this->label($column->getTable()->getModel(), $column->getName());
             }));
         });
 
         BaseFilter::configureUsing(function (BaseFilter $filter): void {
             $filter->label(fn() => static::measure('Label', function () use ($filter) {
-                $this->label($filter->getTable()->getModel(), $filter->getName());
+                return $this->label($filter->getTable()->getModel(), $filter->getName());
             }));
         });
 
         InfolistComponent::configureUsing(function (InfolistComponent $infolist): void {
             $infolist->label(function () use ($infolist) {
-                $this->label($infolist->getRecord()::class, $infolist->getName());
+                return $this->label($infolist->getRecord()::class, $infolist->getName());
             });
         });
     }
