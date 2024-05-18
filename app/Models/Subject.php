@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\WorkingDay;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,10 +71,30 @@ class Subject extends Model
             ->withPivot('registered_at');
     }
 
+    protected function title(): Attribute
+    {
+        return Attribute::get(fn(): string => $this->course->name . ' ' . $this->parallel . $this->code);
+    }
+
     protected function endTime(): Attribute
     {
-        return Attribute::make(
-            get: fn(): Carbon => $this->start_time->clone()->addMinutes($this->course->credits * 50),
-        );
+        return Attribute::get(function (): Carbon {
+            $credits = $this->course->credits ?? $this->course_credits;
+
+            return $this->start_time->clone()->addMinutes($credits * 50);
+        });
+    }
+
+    protected function timePeriod(): Attribute
+    {
+        return Attribute::get(fn(): CarbonPeriod => CarbonPeriod::create($this->start_time, $this->end_time));
+    }
+
+    protected function time(): Attribute
+    {
+        return Attribute::get(fn(): string => implode(' - ', [
+            $this->start_time->format('H:i'),
+            $this->end_time->format('H:i'),
+        ]));
     }
 }

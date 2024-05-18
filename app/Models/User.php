@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Gender;
 use App\Enums\Role;
+use App\Exceptions\InvalidRoleException;
 use App\Observers\UserObserver;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
@@ -62,17 +63,70 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         );
     }
 
+    public function infoId(): Attribute
+    {
+        static $cache = [];
+
+        return Attribute::get(function () use (&$cache): int {
+            return $cache[$this->id] ??= $this->relationLoaded('info')
+                ? $this->info->id
+                : $this->info()->value('id');
+        });
+    }
+
+    public function student(): Attribute
+    {
+        return Attribute::get(function (): Student {
+            if ($this->info instanceof Student) {
+                return $this->info;
+            }
+
+            throw new InvalidRoleException(expect: Role::Student, actual: $this->role);
+        });
+    }
+
+    public function professor(): Attribute
+    {
+        return Attribute::get(function (): Professor {
+            if ($this->info instanceof Professor) {
+                return $this->info;
+            }
+
+            throw new InvalidRoleException(expect: Role::Professor, actual: $this->role);
+        });
+    }
+
+    public function staff(): Attribute
+    {
+        return Attribute::get(function (): Staff {
+            if ($this->info instanceof Staff) {
+                return $this->info;
+            }
+
+            throw new InvalidRoleException(expect: Role::Staff, actual: $this->role);
+        });
+    }
+
+    public function admin(): Attribute
+    {
+        return Attribute::get(function (): Staff {
+            if ($this->info instanceof Staff) {
+                return $this->info;
+            }
+
+            throw new InvalidRoleException(expect: Role::Admin, actual: $this->role);
+        });
+    }
+
     public function facultyId(): Attribute
     {
-        return new Attribute(
-            get: function (): ?int {
-                if ($this->role === Role::Student) {
-                    return $this->info->study_program->faculty_id;
-                }
+        return Attribute::get(function (): ?int {
+            if ($this->role === Role::Student) {
+                return $this->info->studyProgram->faculty_id;
+            }
 
-                return $this->info->faculty_id;
-            },
-        );
+            return $this->info->faculty_id;
+        });
     }
 
     public function panelId(): string
