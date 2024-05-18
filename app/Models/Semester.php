@@ -53,4 +53,11 @@ class Semester extends Model
             ->where('parity', $parities[now()->month])
             ->limit(1);
     }
+
+    public static function current(): ?static
+    {
+        static $current = self::query()->current()->first();
+
+        return $current;
+    }
 }

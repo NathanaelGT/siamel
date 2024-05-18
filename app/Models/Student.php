@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\Parity;
 use App\Enums\StudentStatus;
 use App\Observers\StudentObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,5 +54,25 @@ class Student extends Model implements Contracts\HasAccountContract
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class)->using(StudentSubject::class);
+    }
+
+    public function currentSemesterSubjects(): BelongsToMany
+    {
+        return $this->subjects()->where('semester_id', Semester::current()->id);
+    }
+
+    public function semester(): Attribute
+    {
+        return Attribute::get(function (): int {
+            $currentSemester = Semester::current();
+            $studentEntryYear = intval('20' . substr($this->id, 0, 2));
+
+            $semester = ($currentSemester->year - $studentEntryYear) * 2;
+            if ($currentSemester->parity === Parity::Odd) {
+                $semester--;
+            }
+
+            return $semester;
+        });
     }
 }
