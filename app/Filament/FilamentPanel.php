@@ -32,6 +32,7 @@ abstract class FilamentPanel
             ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             ->discoverPages(in: app_path("Filament/$name/Pages"), for: "App\\Filament\\$name\\Pages")
             ->discoverWidgets(in: app_path("Filament/$name/Widgets"), for: "App\\Filament\\$name\\Widgets")
+            ->discoverClusters(in: app_path("Filament/$name/Clusters"), for: "App\\Filament\\$name\\Clusters")
             ->discoverResources(in: app_path("Filament/$name/Resources"), for: "App\\Filament\\$name\\Resources")
             ->middleware([
                 EncryptCookies::class,
