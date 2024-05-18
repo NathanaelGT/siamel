@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 #[ObservedBy(StudentObserver::class)]
@@ -38,13 +39,18 @@ class Student extends Model implements Contracts\HasAccountContract
         ];
     }
 
+    public function faculty(): HasOneThrough
+    {
+        return $this->hasOneThrough(Faculty::class, StudyProgram::class);
+    }
+
     public function studyProgram(): BelongsTo
     {
         return $this->belongsTo(StudyProgram::class);
     }
 
-    public function faculty(): HasOneThrough
+    public function subjects(): BelongsToMany
     {
-        return $this->hasOneThrough(Faculty::class, StudyProgram::class);
+        return $this->belongsToMany(Subject::class)->using(StudentSubject::class);
     }
 }

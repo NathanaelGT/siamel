@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 
 class Subject extends Model
@@ -52,14 +53,21 @@ class Subject extends Model
         return $this->belongsTo(Semester::class);
     }
 
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class);
+    }
+
     public function professor(): BelongsTo
     {
         return $this->belongsTo(Professor::class);
     }
 
-    public function room(): BelongsTo
+    public function students(): BelongsToMany
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsToMany(Student::class)
+            ->using(StudentSubject::class)
+            ->withPivot('registered_at');
     }
 
     protected function endTime(): Attribute
