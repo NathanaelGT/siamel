@@ -33,8 +33,8 @@ class CreateSubject extends CreateRecord
 
             $index = 0;
 
-            $createFinder = static function (Builder | Closure $query, array $columns = []) {
-                return static function ($id = null) use ($query, $columns) {
+            $createFinder = function (Builder | Closure $query, array $columns = []) {
+                return function ($id = null) use ($query, $columns) {
                     static $cache = false;
                     if ($cache === false) {
                         if (filled($id)) {
@@ -55,7 +55,7 @@ class CreateSubject extends CreateRecord
             $course = $createFinder(Course::query(), ['name', 'study_program_id']);
             $room = $createFinder(Room::query(), ['capacity']);
 
-            $professors = $createFinder(static fn($courseId) => Professor::query()
+            $professors = $createFinder(fn($courseId) => Professor::query()
                 ->join('users', 'professors.user_id', '=', 'users.id')
                 ->whereIn(
                     'professors.id',
@@ -66,7 +66,7 @@ class CreateSubject extends CreateRecord
                 ->get(['professors.id', 'users.name'])
             );
 
-            $rooms = $createFinder(static fn($studyProgramId) => Room::query()
+            $rooms = $createFinder(fn($studyProgramId) => Room::query()
                 ->whereIn(
                     'building_id',
                     Building::query()
@@ -87,7 +87,7 @@ class CreateSubject extends CreateRecord
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Mata Kuliah')
                         ->columns(2)
-                        ->afterValidation(static function (Forms\Get $get) use (&$repeater, &$newParallel) {
+                        ->afterValidation(function (Forms\Get $get) use (&$repeater, &$newParallel) {
                             $parallel = $get('parallel');
 
                             $start = count($parallel);
@@ -142,7 +142,7 @@ class CreateSubject extends CreateRecord
                                 ->cloneable()
                                 ->reorderableWithButtons()
                                 ->columns(2)
-                                ->itemLabel(static function (Forms\Get $get) use ($course, $chr, &$index) {
+                                ->itemLabel(function (Forms\Get $get) use ($course, $chr, &$index) {
                                     $name = $course($get('course_id'))?->name;
                                     $parallel = chr($chr + ++$index);
 
@@ -151,7 +151,7 @@ class CreateSubject extends CreateRecord
                                 ->schema(fn() => [
                                     Forms\Components\Select::make('professor_id')
                                         ->columnSpan(2)
-                                        ->options(static function (Forms\Get $get) use ($professors) {
+                                        ->options(function (Forms\Get $get) use ($professors) {
                                             return $professors($get('../../course_id'))?->pluck('name', 'id')->all();
                                         })
                                         ->searchable()
@@ -159,7 +159,7 @@ class CreateSubject extends CreateRecord
                                         ->required(),
 
                                     Forms\Components\Select::make('room_id')
-                                        ->options(static function (Forms\Get $get) use ($rooms, $course) {
+                                        ->options(function (Forms\Get $get) use ($rooms, $course) {
                                             $studyProgramId = $course($get('../../course_id'))?->study_program_id;
 
                                             return $rooms($studyProgramId)?->pluck('name', 'id')->all();
@@ -169,7 +169,7 @@ class CreateSubject extends CreateRecord
                                         ->required()
                                         ->reactive()
                                         ->afterStateUpdated(
-                                            static function (Forms\Set $set, ?string $state) use ($room) {
+                                            function (Forms\Set $set, ?string $state) use ($room) {
                                                 $set('capacity', $room($state)?->capacity);
                                             }
                                         ),
@@ -182,7 +182,7 @@ class CreateSubject extends CreateRecord
                                         ->required()
                                         ->numeric()
                                         ->minValue(10)
-                                        ->maxValue(static function (Forms\Get $get) use ($room) {
+                                        ->maxValue(function (Forms\Get $get) use ($room) {
                                             return $room($get('room_id'))?->capacity ?? 50;
                                         }),
 

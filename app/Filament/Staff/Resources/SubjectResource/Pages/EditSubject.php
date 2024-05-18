@@ -64,7 +64,7 @@ class EditSubject extends EditRecord
                 ->searchable()
                 ->required()
                 ->reactive()
-                ->afterStateUpdated(static function (Forms\Set $set, ?string $state) {
+                ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
                     if (blank($state)) {
                         return;
                     }
@@ -80,7 +80,7 @@ class EditSubject extends EditRecord
                 ->required()
                 ->numeric()
                 ->minValue(10)
-                ->maxValue(static function (Forms\Get $get) {
+                ->maxValue(function (Forms\Get $get) {
                     if (blank($id = $get('room_id'))) {
                         return null;
                     }

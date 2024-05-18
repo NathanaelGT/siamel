@@ -37,11 +37,7 @@ class SubjectResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('room.name')
-                    ->sortable()
-                    ->formatStateUsing(static fn(Subject $record) => implode(' ', [
-                        $record->room->building->abbreviation,
-                        $record->room->name,
-                    ]))
+                    ->formatStateUsing(fn(Subject $record) => $record->room->full_name)
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('capacity')
@@ -50,7 +46,7 @@ class SubjectResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('parallel')
-                    ->formatStateUsing(static fn(Subject $record) => implode([
+                    ->formatStateUsing(fn(Subject $record) => implode([
                         $record->parallel,
                         $record->code,
                     ])),
@@ -60,7 +56,7 @@ class SubjectResource extends Resource
 
                 Tables\Columns\TextColumn::make('start_time')
                     ->label('Jam')
-                    ->formatStateUsing(static fn(Subject $record) => implode(' - ', [
+                    ->formatStateUsing(fn(Subject $record) => implode(' - ', [
                         $record->start_time->format('H:i'),
                         $record->end_time->format('H:i'),
                     ])),
