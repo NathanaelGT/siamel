@@ -10,10 +10,9 @@ class Resource extends BaseResource
     public static function getModelLabel(): string
     {
         static $cache = [];
-        if (! isset($cache[static::class])) {
-            $model = static::getModel();
 
-            $cache[static::class] = static::$modelLabel ?? FilamentLabelServiceProvider::label($model);
+        if (! isset($cache[static::class])) {
+            $cache[static::class] = static::$modelLabel ?? FilamentLabelServiceProvider::label(static::getModel());
         }
 
         return $cache[static::class];
@@ -23,12 +22,8 @@ class Resource extends BaseResource
     {
         static $cache = [];
 
-        if (filled(static::$slug)) {
-            return static::$slug;
-        }
-
         if (! isset($cache[static::class])) {
-            $cache[static::class] = str(static::class)
+            $cache[static::class] = static::$slug ?? str(static::class)
                 ->afterLast('\\Resources\\')
                 ->beforeLast('Resource')
                 ->explode('\\')
