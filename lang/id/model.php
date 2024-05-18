@@ -96,6 +96,7 @@ return [
     \App\Models\Subject::class => [
         'name'    => 'Kelas',
         'columns' => [
+            'title'      => 'Kelas',
             'capacity'   => 'Kapasitas',
             'parallel'   => 'Paralel',
             'code'       => 'Kode',
@@ -103,6 +104,7 @@ return [
             'day'        => 'Hari',
             'start_time' => 'Jam mulai',
             'end_time'   => 'Jam selesai',
+            'time'       => 'Jam',
             'year'       => 'Tahun',
         ],
     ],
