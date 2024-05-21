@@ -14,15 +14,13 @@ class SemesterSchedule extends Model
     protected $fillable = [
         'semester_id',
         'name',
-        'start_date',
-        'end_date',
+        'date',
     ];
 
     protected function casts(): array
     {
         return [
-            'start_date' => 'date',
-            'end_date'   => 'date',
+            'date' => 'date',
         ];
     }
 }
