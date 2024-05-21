@@ -5,6 +5,7 @@ namespace App\Filament\Student\Clusters\InformationSystemCluster\Resources\Subje
 use App\Enums\WorkingDay;
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\SubjectResource;
 use App\Models\Semester;
+use App\Models\StudentSubject;
 use App\Models\Subject;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -39,7 +40,17 @@ class SelectedSubjects extends ListRecords
                 Tables\Columns\TextColumn::make('time'),
             ])
             ->actions([
-                //
+                Tables\Actions\DeleteAction::make()
+                    ->modalHeading(fn(Subject $record) => 'Hapus ' . $record->title)
+                    ->successNotificationTitle(function (Subject $record) {
+                        return "Kelas {$record->title} berhasil dihapus";
+                    })
+                    ->using(function (Subject $record) {
+                        StudentSubject::query()
+                            ->where('student_id', auth()->user()->info_id)
+                            ->where('subject_id', $record->id)
+                            ->delete();
+                    }),
             ]);
     }
 
