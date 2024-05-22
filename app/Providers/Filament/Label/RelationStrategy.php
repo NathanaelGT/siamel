@@ -4,6 +4,7 @@ namespace App\Providers\Filament\Label;
 
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Closure;
+use Error;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -47,40 +48,42 @@ class RelationStrategy extends Strategy
             : fn(string $label, Closure $closure) => $closure();
 
         return $measure('Load Label Relation', function () use (&$cache, $model, $modelMethods) {
-            $modelMethods = array_diff(get_class_methods($model), $modelMethods);
-
-            /** @var Model $class */
-            $class = new $model();
-
-            if (method_exists($model, 'factory')) {
-                $class->forceFill(Arr::map(
-                    $definition = $model::factory()->definition(),
-                    function ($attribute) use ($definition) {
-                        if ($attribute instanceof Factory) {
-                            $attribute = null;
-                        } elseif ($attribute instanceof Closure) {
-                            $attribute = $attribute($definition);
-                        }
-
-                        return $attribute;
-                    }
-                ));
-            }
-
             $cache[$model] = [
                 'columns'   => [],
                 'relations' => [],
             ];
 
-            foreach ($modelMethods as $method) {
+            /** @var Model $class */
+            $class = new $model();
+
+            if (method_exists($model, 'factory')) {
+                try {
+                    $factory = $model::factory();
+                } catch (Error $e) {
+                    if (str_ends_with($e->getMessage(), 'not found.')) {
+                        goto airi;
+                    }
+
+                    throw $e;
+                }
+
+                $class->forceFill(Arr::map($definition = $factory->definition(), fn($attribute) => match (true) {
+                    $attribute instanceof Factory => null,
+                    $attribute instanceof Closure => $attribute($definition),
+                    default                       => $attribute,
+                }));
+            }
+
+            airi:
+            foreach (array_diff(get_class_methods($model), $modelMethods) as $method) {
                 $ref = new ReflectionMethod($model, $method);
 
                 if (
                     $ref->getNumberOfParameters() === 0 &&
                     is_subclass_of($ref->getReturnType()?->getName(), Relation::class)
                 ) {
-                    /** @var Relation $relation */
                     try {
+                        /** @var Relation $relation */
                         $relation = $class->$method();
                     } catch (Throwable) {
                         continue;
@@ -92,8 +95,10 @@ class RelationStrategy extends Strategy
                         $foreignKey = $relation->getFirstKeyName();
                     } elseif (method_exists($relation, 'getForeignKeyName')) {
                         $foreignKey = $relation->getForeignKeyName();
-                    } else {
+                    } elseif (app()->hasDebugModeEnabled()) {
                         dd('Unknown foreign key name.', $model, $method, $relation::class);
+                    } else {
+                        continue;
                     }
 
                     $relationModel = $relation->getModel()::class;
