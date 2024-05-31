@@ -79,7 +79,9 @@ class Subject extends Model
 
     protected function title(): Attribute
     {
-        return Attribute::get(fn(): string => $this->course->name . ' ' . $this->parallel . $this->code);
+        return Attribute::get(function (): string {
+            return ($this->course_name ?? $this->course->name) . ' ' . $this->parallel . $this->code;
+        });
     }
 
     protected function endTime(): Attribute
