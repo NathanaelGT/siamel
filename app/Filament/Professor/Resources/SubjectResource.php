@@ -36,8 +36,9 @@ class SubjectResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSubjects::route('/'),
-            'view'  => Pages\ViewSubject::route('/{record}'),
+            'index'      => Pages\ListSubjects::route('/'),
+            'view'       => Pages\ViewSubject::route('/{record}'),
+            'attendance' => Pages\Attendance::route('/{record}/absensi/pertemuan-{meetingNo}'),
         ];
     }
 }

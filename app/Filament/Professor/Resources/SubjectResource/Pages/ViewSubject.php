@@ -3,6 +3,7 @@
 namespace App\Filament\Professor\Resources\SubjectResource\Pages;
 
 use App\Filament\Professor\Resources\SubjectResource;
+use App\Filament\Professor\Resources\SubjectResource\RelationManagers;
 use App\Models\Subject;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
@@ -28,7 +29,7 @@ class ViewSubject extends ViewRecord
     public function getRelationManagers(): array
     {
         return [
-            //
+            RelationManagers\SchedulesRelationManager::class,
         ];
     }
 
