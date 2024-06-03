@@ -35,4 +35,11 @@ class Attachment extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected function url(): Attribute
+    {
+        return Attribute::get(function (): string {
+            return "/berkas?s=$this->slug";
+        });
+    }
 }

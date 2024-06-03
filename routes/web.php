@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Livewire\Pages\Auth\AcceptInvitation;
 use App\Livewire\Pages\Auth\Login;
 use App\Livewire\Pages\Auth\RequestPasswordReset;
@@ -20,3 +21,5 @@ Route::prefix('reset-password')->group(function () {
 });
 
 Route::redirect('/', '/login');
+
+Route::get('/berkas', AttachmentController::class);
