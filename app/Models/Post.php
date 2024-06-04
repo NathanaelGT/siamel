@@ -13,12 +13,26 @@ class Post extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'subject_id',
+        'user_id',
+        'title',
+        'content',
+        'type',
+        'published_at',
+    ];
+
     protected function casts(): array
     {
         return [
             'type'         => PostType::class,
             'published_at' => 'datetime',
         ];
+    }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function subject(): BelongsTo
