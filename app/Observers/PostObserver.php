@@ -11,7 +11,7 @@ class PostObserver
         $now = now()->toDateTimeString();
 
         $post->user_id = auth()->id();
-        $post->published_at = $now;
+        $post->published_at ??= $now;
         $post->created_at = $now;
         $post->updated_at = $now;
     }
