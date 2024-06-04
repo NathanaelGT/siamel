@@ -2,9 +2,12 @@
 
 namespace App\Enums;
 
-enum PostType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum PostType: string implements HasLabel
 {
-    case Article    = 'artikel';
-    case Assignment = 'tugas';
-    case Link       = 'link';
+    use Concerns\Label;
+
+    case LearningMaterial = 'Materi';
+    case Assignment       = 'Tugas';
 }
