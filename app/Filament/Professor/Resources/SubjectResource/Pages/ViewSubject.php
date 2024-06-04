@@ -32,6 +32,7 @@ class ViewSubject extends ViewRecord
     public function getRelationManagers(): array
     {
         return [
+            RelationManagers\PostsRelationManager::class,
             RelationManagers\SchedulesRelationManager::class,
             RelationManagers\StudentsRelationManager::class,
         ];

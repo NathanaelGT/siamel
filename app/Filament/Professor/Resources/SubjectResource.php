@@ -38,6 +38,7 @@ class SubjectResource extends Resource
         return [
             'index'      => Pages\ListSubjects::route('/'),
             'view'       => Pages\ViewSubject::route('/{record}'),
+            'post'       => Pages\PostDetail::route('/{record}/{postId}'),
             'attendance' => Pages\Attendance::route('/{record}/absensi/pertemuan-{meetingNo}'),
         ];
     }
