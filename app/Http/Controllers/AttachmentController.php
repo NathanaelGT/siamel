@@ -21,6 +21,7 @@ class AttachmentController
         if ($user->role !== Role::Admin && $attachment->owner_id !== $user->id) {
             $class = basename($attachment->attachmentable_type);
 
+            /** @var \App\Access\Attachment\Contracts\AttachmentAccess $access */
             if (class_exists($access = "App\\Access\\Attachment\\$class")) {
                 abort_unless($access::check($attachment, $user), 404);
             }
