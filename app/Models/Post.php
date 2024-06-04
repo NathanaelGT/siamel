@@ -3,12 +3,19 @@
 namespace App\Models;
 
 use App\Enums\PostType;
+use App\Exceptions\InvalidPostTypeException;
+use App\Observers\PostObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Str;
 
+#[ObservedBy(PostObserver::class)]
 class Post extends Model
 {
     use HasFactory;
@@ -40,17 +47,35 @@ class Post extends Model
         return $this->belongsTo(Subject::class);
     }
 
-    public function assignment(): MorphOne
+    public function assignment(): HasOne
     {
-        $instance = $this->newRelatedInstance(Assignment::class);
-        $localKey = $this->getKeyName();
-        $table = $instance->getTable();
+        return $this->hasOne(Assignment::class, 'id');
+    }
 
-        return $this->newMorphOne($instance->newQuery(), $this, "$table.type", "$table.$localKey", $localKey);
+    public function submissions(): HasManyThrough
+    {
+        if ($this->type !== PostType::Assignment) {
+            throw new InvalidPostTypeException(expect: PostType::Assignment, actual: $this->type);
+        }
+
+        return $this->hasManyThrough(Submission::class, Assignment::class, firstKey: 'id');
     }
 
     public function attachments(): MorphMany
     {
         return $this->morphMany(Attachment::class, 'attachmentable');
+    }
+
+    protected function formattedTitle(): Attribute
+    {
+        return Attribute::get(function (): string {
+            $prefix = $this->type->value;
+
+            if (str($this->title)->lower()->startsWith(strtolower($prefix))) {
+                return Str::ucfirst($this->title);
+            }
+
+            return $this->type->value . ' ' . $this->title;
+        });
     }
 }
