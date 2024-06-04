@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 
@@ -21,5 +22,10 @@ trait HasAccount
         $successfullyUpdateAccount = ! empty($accountData) && $this->account()->update($accountData);
 
         return $successfullyUpdateThis && $successfullyUpdateAccount;
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::get(fn(): string => $this->account->name);
     }
 }
