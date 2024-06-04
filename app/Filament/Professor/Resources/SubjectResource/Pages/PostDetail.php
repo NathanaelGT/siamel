@@ -4,6 +4,7 @@ namespace App\Filament\Professor\Resources\SubjectResource\Pages;
 
 use App\Enums\PostType;
 use App\Filament\Professor\Resources\SubjectResource;
+use App\Filament\Professor\Resources\SubjectResource\RelationManagers;
 use App\Infolists\Components\AttachmentListEntry;
 use App\Models\Post;
 use App\Models\Subject;
@@ -70,6 +71,12 @@ class PostDetail extends ViewRecord
 
     public function getRelationManagers(): array
     {
+        if ($this->record->type === PostType::Assignment) {
+            return [
+                RelationManagers\SubmissionsRelationManager::class,
+            ];
+        }
+
         return [];
     }
 
