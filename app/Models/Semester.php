@@ -23,6 +23,7 @@ class Semester extends Model
     {
         return [
             'parity' => Parity::class,
+            'year'   => 'int',
         ];
     }
 
@@ -33,24 +34,16 @@ class Semester extends Model
 
     public function scopeCurrent(Builder $query): void
     {
-        $parities = [
-            8  => Parity::Odd,
-            9  => Parity::Odd,
-            10 => Parity::Odd,
-            11 => Parity::Odd,
-            12 => Parity::Odd,
-            1  => Parity::Odd,
-            2  => Parity::Even,
-            3  => Parity::Even,
-            4  => Parity::Even,
-            5  => Parity::Even,
-            6  => Parity::Even,
-            7  => Parity::Even,
-        ];
+        $now = now();
+
+        $parity = match ($now->month) {
+            8, 9, 10, 11, 12, 1 => Parity::Odd,
+            2, 3, 4, 5, 6, 7    => Parity::Even,
+        };
 
         $query
-            ->where('year', now()->year)
-            ->where('parity', $parities[now()->month])
+            ->where('year', $now->year)
+            ->where('parity', $parity)
             ->limit(1);
     }
 
