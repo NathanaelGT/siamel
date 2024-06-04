@@ -93,22 +93,21 @@ class RelationStrategy extends Strategy
                         continue;
                     }
 
-                    if ($relation instanceof BelongsToMany) {
-                        continue;
-                    } elseif ($relation instanceof HasManyThrough) {
-                        $foreignKey = $relation->getFirstKeyName();
-                    } elseif (method_exists($relation, 'getForeignKeyName')) {
-                        $foreignKey = $relation->getForeignKeyName();
-                    } elseif (app()->hasDebugModeEnabled()) {
-                        dd('Unknown foreign key name.', $model, $method, $relation::class);
-                    } else {
-                        continue;
-                    }
+                    $foreignKey = match (true) {
+                        $relation instanceof BelongsToMany            => $relation->getForeignPivotKeyName(),
+                        $relation instanceof HasManyThrough           => $relation->getFirstKeyName(),
+                        method_exists($relation, 'getForeignKeyName') => $relation->getForeignKeyName(),
+                        app()->hasDebugModeEnabled()                  => dd('Unknown foreign key name.', $model, $method, $relation::class),
+                        default                                       => null,
+                    };
 
                     $relationModel = $relation->getModel()::class;
 
                     $cache[$model]['relations'][$method] = $relationModel;
-                    $cache[$model]['columns'][$foreignKey] = $relationModel;
+
+                    if ($foreignKey !== null) {
+                        $cache[$model]['columns'][$foreignKey] = $relationModel;
+                    }
                 }
             }
 
