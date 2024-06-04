@@ -8,6 +8,7 @@ use App\Models\Subject;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Database\Eloquent\Model;
 
 /** @property-read Subject $record */
 class ViewSubject extends ViewRecord
@@ -23,6 +24,8 @@ class ViewSubject extends ViewRecord
                 Infolists\Components\TextEntry::make('day_time')
                     ->label('Waktu')
                     ->default(fn(Subject $subject) => $subject->day->value . ' ' . $subject->time),
+
+                Infolists\Components\TextEntry::make('student_subjects_count'),
             ]);
     }
 
@@ -31,6 +34,11 @@ class ViewSubject extends ViewRecord
         return [
             RelationManagers\SchedulesRelationManager::class,
         ];
+    }
+
+    protected function resolveRecord(int | string $key): Model
+    {
+        return parent::resolveRecord($key)->loadCount('studentSubjects');
     }
 
     public function getTitle(): string
