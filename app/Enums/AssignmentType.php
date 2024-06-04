@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
-enum AssignmentType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum AssignmentType: string implements HasLabel
 {
-    case Individual = 'individual';
-    case Group      = 'kelompok';
+    use Concerns\Label;
+
+    case Individual = 'Individu';
+    case Group      = 'Kelompok';
 }

@@ -2,11 +2,15 @@
 
 namespace App\Enums;
 
-enum AssignmentCategory: string
+use Filament\Support\Contracts\HasLabel;
+
+enum AssignmentCategory: string implements HasLabel
 {
-    case Homework = 'tugas';
-    case Quiz     = 'quiz';
-    case Project  = 'projek';
+    use Concerns\Label;
+
+    case Homework = 'Tugas';
+    case Quiz     = 'Quiz';
+    case Project  = 'Projek';
     case Midterm  = 'UTS';
     case Final    = 'UAS';
 }
