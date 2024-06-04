@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
 
 class SchedulesRelationManager extends RelationManager
@@ -53,9 +54,44 @@ class SchedulesRelationManager extends RelationManager
                     }),
             ])
             ->modifyQueryUsing(function (Builder $query) {
-                $query->with('subject:id,slug');
+                $query->with('subject:id,slug,course_id');
             })
             ->actions([
+                Tables\Actions\Action::make('reschedule')
+                    ->icon('heroicon-o-pencil-square')
+                    ->disabled(fn(SubjectSchedule $record) => $record->start_time->clone()->addWeek()->isPast())
+                    ->modalHeading(fn(SubjectSchedule $record) => 'Atur ulang jadwal pertamuan ke ' . $record->meeting_no)
+                    ->successNotificationTitle(fn(SubjectSchedule $record) => 'Jadwal pertemuan ke ' . $record->meeting_no . ' berhasil diatur ulang')
+                    ->modalSubmitActionLabel('Reschedule')
+                    ->form(fn(Form $form, SubjectSchedule $record) => $form->columns(2)->schema([
+                        Forms\Components\DateTimePicker::make('start_time')
+                            ->label('Waktu mulai')
+                            ->native(false)
+                            ->seconds(false)
+                            ->minutesStep(10)
+                            ->default($record->start_time)
+                            ->minDate($record->start_time->clone()->startOfWeek())
+                            ->maxDate($record->start_time->clone()->endOfWeek())
+                            ->required(),
+
+                        Forms\Components\TextInput::make('duration')
+                            ->label('Durasi')
+                            ->suffix('menit')
+                            ->numeric()
+                            ->default($default = $record->subject->course->credits * 50)
+                            ->minValue(1)
+                            ->maxValue($default)
+                            ->required(),
+                    ]))
+                    ->action(function (SubjectSchedule $record, array $data, Tables\Actions\Action $action) {
+                        $record->update([
+                            'start_time' => $data['start_time'],
+                            'end_time'   => Carbon::create($data['start_time'])->addMinutes((int) $data['duration']),
+                        ]);
+
+                        $action->success();
+                    }),
+
                 Tables\Actions\ViewAction::make()
                     ->label('Absen')
                     ->icon('heroicon-o-pencil-square')
