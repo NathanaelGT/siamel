@@ -53,6 +53,10 @@ class RelationStrategy extends Strategy
                 'relations' => [],
             ];
 
+            if (! class_exists($model)) {
+                return $cache[$model];
+            }
+
             /** @var Model $class */
             $class = new $model();
 
@@ -60,7 +64,7 @@ class RelationStrategy extends Strategy
                 try {
                     $factory = $model::factory();
                 } catch (Error $e) {
-                    if (str_ends_with($e->getMessage(), 'not found.')) {
+                    if (str_contains($e->getMessage(), 'not found')) {
                         goto airi;
                     }
 
