@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PostType;
 use App\Enums\WorkingDay;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Carbon;
 
 class Subject extends Model
@@ -72,9 +74,25 @@ class Subject extends Model
             ->withPivot('registered_at');
     }
 
+    public function studentSubjects(): HasMany
+    {
+        return $this->hasMany(StudentSubject::class);
+    }
+
     public function schedules(): HasMany
     {
         return $this->hasMany(SubjectSchedule::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function submissions(): HasManyThrough
+    {
+        return $this->hasManyThrough(Submission::class, Post::class, secondKey: 'assignment_id')
+            ->where('type', PostType::Assignment);
     }
 
     protected function title(): Attribute
