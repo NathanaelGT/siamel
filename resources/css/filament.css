@@ -49,3 +49,16 @@ td.fc-day-sat {
         font-weight: bold;
     }
 }
+
+.fi-resource-relation-managers {
+    > .fi-tabs:first-child {
+        margin-left: 0;
+        margin-bottom: -1.5rem;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    > .fi-tabs:first-child ~ [role="tabpanel"] .fi-ta-ctn {
+        border-top-left-radius: 0;
+    }
+}
