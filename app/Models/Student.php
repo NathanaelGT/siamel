@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[ObservedBy(StudentObserver::class)]
 class Student extends Model implements Contracts\HasAccountContract
@@ -61,18 +63,68 @@ class Student extends Model implements Contracts\HasAccountContract
         return $this->subjects()->where('semester_id', Semester::current()->id);
     }
 
-    public function semester(): Attribute
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function submissions(): MorphMany
+    {
+        return $this->morphMany(Submission::class, 'submissionable');
+    }
+
+    protected function enrolledYear(): Attribute
+    {
+        return Attribute::get(function (): int {
+            return intval('20' . substr($this->id, 0, 2));
+        });
+    }
+
+    protected function semester(): Attribute
     {
         return Attribute::get(function (): int {
             $currentSemester = Semester::current();
-            $studentEntryYear = intval('20' . substr($this->id, 0, 2));
 
-            $semester = ($currentSemester->year - $studentEntryYear) * 2;
+            $semester = ($currentSemester->year - $this->enrolled_year) * 2;
             if ($currentSemester->parity === Parity::Odd) {
-                $semester--;
+                $semester++;
             }
 
             return $semester;
+        });
+    }
+
+    protected function semesters(): Attribute
+    {
+        static $cache = [];
+
+        return Attribute::get(function () use (&$cache): array {
+            if (! isset($cache[$this->id])) {
+                $cache[$this->id] = Semester::query()
+                    ->where('year', '>=', $this->enrolled_year)
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+
+            return $cache[$this->id];
+        });
+    }
+
+    protected function semesterLabels(): Attribute
+    {
+        return Attribute::get(function (): array {
+            $enrolledYear = $this->enrolled_year;
+
+            return $this->semesters->mapWithKeys(function (Semester $semester) use ($enrolledYear) {
+                $semesterNumber = ($semester->year - $enrolledYear) * 2 + 1;
+                if ($semester->parity === Parity::Odd) {
+                    $semesterNumber++;
+                }
+
+                $label = "$semesterNumber (" . substr($semester->academic_year, 9) . ')';
+
+                return [$semester->id => $label];
+            });
         });
     }
 }
