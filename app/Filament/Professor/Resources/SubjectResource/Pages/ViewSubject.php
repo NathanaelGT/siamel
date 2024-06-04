@@ -33,6 +33,7 @@ class ViewSubject extends ViewRecord
     {
         return [
             RelationManagers\SchedulesRelationManager::class,
+            RelationManagers\StudentsRelationManager::class,
         ];
     }
 
