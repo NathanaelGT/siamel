@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
 #[ObservedBy(StudentObserver::class)]
 class Student extends Model implements Contracts\HasAccountContract
@@ -98,7 +99,7 @@ class Student extends Model implements Contracts\HasAccountContract
     {
         static $cache = [];
 
-        return Attribute::get(function () use (&$cache): array {
+        return Attribute::get(function () use (&$cache): Collection {
             if (! isset($cache[$this->id])) {
                 $cache[$this->id] = Semester::query()
                     ->where('year', '>=', $this->enrolled_year)
@@ -124,7 +125,7 @@ class Student extends Model implements Contracts\HasAccountContract
                 $label = "$semesterNumber (" . substr($semester->academic_year, 9) . ')';
 
                 return [$semester->id => $label];
-            });
+            })->all();
         });
     }
 }
