@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
-use RuntimeException;
 
 #[ObservedBy(SubmissionObserver::class)]
 class Submission extends Model
@@ -57,14 +56,14 @@ class Submission extends Model
     ): void
     {
         if ($subject === null) {
-            if (! isset($this->assignment_id)) {
-                throw new RuntimeException('Cannot resolve subject');
+            if (isset($this->assignment_id)) {
+                $subjectId = Post::query()
+                    ->select('subject_id')
+                    ->where('id', $this->assignment_id)
+                    ->limit(1);
+            } else {
+                $subjectId = null;
             }
-
-            $subjectId = Post::query()
-                ->select('subject_id')
-                ->where('id', $this->assignment_id)
-                ->limit(1);
         } else {
             $subjectId = $subject instanceof Subject ? $subject->id : $subject;
         }
@@ -82,7 +81,7 @@ class Submission extends Model
                     ->where('submissionable_type', SubjectGroup::class)
                     ->where('submissionable_id', SubjectGroup::query()
                         ->select('id')
-                        ->where('subject_id', $subjectId)
+                        ->when($subjectId !== null)->where('subject_id', $subjectId)
                         ->whereExists(function (QueryBuilder $query) use ($studentId) {
                             $query->from('subject_group_members')
                                 ->whereColumn('subject_group_members.subject_group_id', 'subject_groups.id')
