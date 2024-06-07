@@ -35,6 +35,7 @@ class ViewSubject extends ViewRecord
             RelationManagers\PostsRelationManager::class,
             RelationManagers\SchedulesRelationManager::class,
             RelationManagers\StudentsRelationManager::class,
+            RelationManagers\GroupsRelationManager::class,
         ];
     }
 

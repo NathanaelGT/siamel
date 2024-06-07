@@ -40,6 +40,7 @@ class SubjectResource extends Resource
             'view'       => Pages\ViewSubject::route('/{record}'),
             'post'       => Pages\PostDetail::route('/{record}/{postId}'),
             'attendance' => Pages\Attendance::route('/{record}/absensi/pertemuan-{meetingNo}'),
+            'group'      => Pages\Group::route('/{subject}/kelompok/{record}'),
             'submission' => Pages\SubmissionDetail::route('/{record}/{postId}/{submissionId}'),
         ];
     }
