@@ -17,16 +17,11 @@ if (! function_exists('abbreviation')) {
         return Str::squish(
             str($words)
                 ->explode(' ')
-                ->map(function (string $word) {
-                    if (is_numeric($word)) {
-                        return " $word ";
-                    } elseif (strtolower($word) === 'dan') {
-                        return '';
-                    } elseif (ctype_alpha($firstChar = $word[0])) {
-                        return strtoupper($firstChar);
-                    }
-
-                    return '';
+                ->map(fn(string $word) => match (true) {
+                    is_numeric($word)           => " $word ",
+                    strtolower($word) === 'dan' => '',
+                    ctype_alpha($word[0])       => strtoupper($word[0]),
+                    default                     => '',
                 })
                 ->join('')
         );
