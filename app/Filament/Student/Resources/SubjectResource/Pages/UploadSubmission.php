@@ -10,8 +10,11 @@ use App\Models\Subject;
 use App\Models\Submission;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
@@ -52,7 +55,7 @@ class UploadSubmission extends EditRecord
     /** @param  Submission  $record */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        DB::transaction(function () use ($record, $data) {
+        $result = DB::transaction(function () use ($record, $data) {
             $wasRecentlyUpdated = false;
 
             if ($record->exists) {
@@ -62,8 +65,17 @@ class UploadSubmission extends EditRecord
             } else {
                 // id assignment sama dengan id post
                 $data['assignment_id'] = $this->post->id;
+                $data['note'] ??= '';
 
-                $record->fill($data)->save();
+                try {
+                    $record->fill($data)->save();
+                } catch (QueryException $exception) {
+                    if (str($exception->getMessage())->contains("Column 'submissionable_id' cannot be null")) {
+                        return null;
+                    }
+
+                    throw $exception;
+                }
                 $wasRecentlyUpdated = true;
             }
 
@@ -100,9 +112,27 @@ class UploadSubmission extends EditRecord
             if ($shouldTouch && ! $wasRecentlyUpdated) {
                 $record->touch();
             }
+
+            return $record;
         });
 
-        return $record;
+        if ($result !== null) {
+            return $result;
+        }
+
+        Notification::make()
+            ->danger()
+            ->title('Anda belum bergabung dalam kelompok')
+            ->body('Silakan bergabung dalam kelompok terlebih dahulu')
+            ->persistent()
+            ->actions([
+                Action::make('search-for-group')
+                    ->label('Cari Kelompok')
+                    ->url(SubjectResource::getUrl('view', [$this->subject]) . '?activeRelationManager=1'),
+            ])
+            ->send();
+
+        $this->halt();
     }
 
     protected function getRedirectUrl(): ?string
