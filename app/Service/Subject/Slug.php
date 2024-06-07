@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 abstract class Slug
 {
     public static function generate(
+        string $studyProgramSlug,
         string $courseName,
         Parity $semesterParity,
         int $semesterYear,
@@ -27,6 +28,6 @@ abstract class Slug
             $endYear = $semesterYear;
         }
 
-        return "$course-$parallel$code-semester-$parity-$startYear-$endYear";
+        return "$course-$parallel$code-$studyProgramSlug-semester-$parity-$startYear-$endYear";
     }
 }

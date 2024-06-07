@@ -213,7 +213,8 @@ class CreateSubject extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         $semester = Semester::findOr($data['semester_id'], callback: $this->halt(...));
-        $courseName = Course::findOr($data['course_id'], 'name', $this->halt(...))->name;
+        $course = Course::findOr($data['course_id'], ['name', 'study_program_id'], $this->halt(...));
+        $studyProgramSlug = $course->studyProgram()->value('slug');
         $chr = ord(
             Subject::query()
                 ->where('course_id', $this->data['course_id'])
@@ -232,7 +233,8 @@ class CreateSubject extends CreateRecord
             $parallel['parallel'] = chr($chr + $index + 1);
             $parallel['code'] = '081';
             $parallel['slug'] = Slug::generate(
-                $courseName,
+                $studyProgramSlug,
+                $course->name,
                 $semester->parity,
                 $semester->year,
                 $parallel['parallel'],
