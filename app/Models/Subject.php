@@ -33,6 +33,7 @@ class Subject extends Model
         'day',
         'start_time',
         'student_can_manage_group',
+        'student_can_create_group',
         'group_max_members',
     ];
 
@@ -42,6 +43,7 @@ class Subject extends Model
             'day'                      => WorkingDay::class,
             'start_time'               => 'datetime',
             'student_can_manage_group' => 'bool',
+            'student_can_create_group' => 'bool',
         ];
     }
 
