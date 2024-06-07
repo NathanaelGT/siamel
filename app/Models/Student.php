@@ -69,6 +69,12 @@ class Student extends Model implements Contracts\HasAccountContract
         return $this->hasMany(Attendance::class);
     }
 
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(SubjectGroup::class, 'subject_group_members')
+            ->using(SubjectGroupMember::class);
+    }
+
     public function submissions(): MorphMany
     {
         return $this->morphMany(Submission::class, 'submissionable');
