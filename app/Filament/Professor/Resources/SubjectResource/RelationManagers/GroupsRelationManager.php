@@ -6,6 +6,7 @@ use App\Filament\Professor\Resources\SubjectResource;
 use App\Filament\RelationManager;
 use App\Models\Student;
 use App\Models\SubjectGroup;
+use App\Service\SubjectGroup\Name;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -110,22 +111,20 @@ class GroupsRelationManager extends RelationManager
                     ->label('Pengaturan')
                     ->hidden($groups->isEmpty())
                     ->successNotificationTitle('Pengaturan kelompok berhasil disimpan')
+                    ->fillForm(fn() => $this->ownerRecord->attributesToArray())
                     ->form(fn(Form $form) => $form->schema([
                         Forms\Components\TextInput::make('group_max_members')
                             ->label('Maksimal anggota kelompok')
-                            ->default($this->ownerRecord->group_max_members)
                             ->required()
                             ->integer()
                             ->minValue(1)
                             ->maxValue(fn() => $this->ownerRecord->students()->count()),
 
                         Forms\Components\Checkbox::make('student_can_manage_group')
-                            ->label('Mahasiswa dapat mengelola kelompok')
-                            ->default($this->ownerRecord->student_can_manage_group),
+                            ->label('Mahasiswa dapat mengelola kelompok'),
 
                         Forms\Components\Checkbox::make('student_can_create_group')
-                            ->label('Mahasiswa dapat membuat kelompok')
-                            ->default($this->ownerRecord->student_can_create_group),
+                            ->label('Mahasiswa dapat membuat kelompok'),
                     ]))
                     ->action(function (array $data, Tables\Actions\Action $action) {
                         return DB::transaction(function () use ($data, $action) {
@@ -169,20 +168,7 @@ class GroupsRelationManager extends RelationManager
                             ->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->label('Nama kelompok')
-                                    ->default(function () {
-                                        $groupNames = $this->ownerRecord->groups()->pluck('name');
-
-                                        foreach ($groupNames as $index => $groupName) {
-                                            preg_match('/kelompok ([0-9]+).*/i', $groupName, $matches);
-
-                                            $no = $index + 1;
-                                            if (isset($matches[1]) && $matches[1] != $no) {
-                                                return 'Kelompok ' . $no;
-                                            }
-                                        }
-
-                                        return 'Kelompok ' . ($groupNames->count() + 1);
-                                    })
+                                    ->default(fn() => Name::generate($this->ownerRecord))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
