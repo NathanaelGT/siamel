@@ -15,7 +15,6 @@ use Filament\Support\Colors\Color;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 use Thiktak\FilamentSimpleListEntry\Infolists\Components\SimpleListEntry;
 
@@ -141,25 +140,27 @@ class PostDetail extends ViewRecord
 
     public function getTitle(): string
     {
-        $prefix = $this->record->type->value;
-
-        $title = str($this->record->title)->lower()->startsWith(strtolower($prefix))
-            ? Str::ucfirst($this->record->title)
-            : $this->record->type->value . ' ' . $this->record->title;
-
-        if ($this->record->type === PostType::Assignment) {
-            return "$title ({$this->record->assignment->type->value})";
-        }
-
-        return $title;
+        return $this->record->formatted_title;
     }
 
-    public function getBreadcrumb(): string
+    public function getBreadcrumbs(): array
     {
-        return implode(' - ', [
-            $this->subject->course->name . ' ' . $this->subject->parallel . $this->subject->code,
-            $this->subject->semester->academic_year,
-        ]);
+        $url = fn(string $name = 'index', array $parameters = []) => SubjectResource::getUrl($name, $parameters);
+
+        $breadcrumbs = [];
+        $breadcrumbs[$url()] = SubjectResource::getBreadcrumb();
+        $breadcrumbs[$viewUrl = $url('view', [$this->subject])] = $this->subject->title;
+        $breadcrumbs["$viewUrl?activeRelationManager=0"] = SubjectResource\RelationManagers\PostsRelationManager::getTitle(
+            $this->subject,
+            SubjectResource::getPages()['view']->getPage()
+        );
+        $breadcrumbs[] = $this->getTitle();
+
+        if (filled($cluster = static::getCluster())) {
+            return $cluster::unshiftClusterBreadcrumbs($breadcrumbs);
+        }
+
+        return $breadcrumbs;
     }
 
     public function getModel(): string

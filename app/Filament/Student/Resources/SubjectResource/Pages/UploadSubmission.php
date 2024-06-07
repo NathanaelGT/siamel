@@ -2,7 +2,6 @@
 
 namespace App\Filament\Student\Resources\SubjectResource\Pages;
 
-use App\Enums\PostType;
 use App\Filament\Student\Resources\SubjectResource;
 use App\Models\Attachment;
 use App\Models\Post;
@@ -16,7 +15,6 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 use Livewire\WithFileUploads;
 
@@ -162,17 +160,28 @@ class UploadSubmission extends EditRecord
 
     public function getTitle(): string
     {
-        $prefix = $this->post->type->value;
+        return 'Pengumpulan';
+    }
 
-        $title = str($this->post->title)->lower()->startsWith(strtolower($prefix))
-            ? Str::ucfirst($this->post->title)
-            : $this->post->type->value . ' ' . $this->post->title;
+    public function getBreadcrumbs(): array
+    {
+        $url = fn(string $name = 'index', array $parameters = []) => SubjectResource::getUrl($name, $parameters);
 
-        if ($this->post->type === PostType::Assignment) {
-            return "$title ({$this->post->assignment->type->value})";
+        $breadcrumbs = [];
+        $breadcrumbs[$url()] = SubjectResource::getBreadcrumb();
+        $breadcrumbs[$viewUrl = $url('view', [$this->subject])] = $this->subject->title;
+        $breadcrumbs["$viewUrl?activeRelationManager=0"] = SubjectResource\RelationManagers\PostsRelationManager::getTitle(
+            $this->subject,
+            SubjectResource::getPages()['view']->getPage()
+        );
+        $breadcrumbs[$url('post', [$this->subject, $this->post])] = $this->post->formatted_title;
+        $breadcrumbs[] = $this->getTitle();
+
+        if (filled($cluster = static::getCluster())) {
+            return $cluster::unshiftClusterBreadcrumbs($breadcrumbs);
         }
 
-        return $title;
+        return $breadcrumbs;
     }
 
     protected function resolveRecord(string | int | null $key): Submission
@@ -190,14 +199,6 @@ class UploadSubmission extends EditRecord
             ->submissions()
             ->whereStudent(auth()->user()->info_id, $this->post->subject_id)
             ->firstOrNew();
-    }
-
-    public function getBreadcrumb(): string
-    {
-        return implode(' - ', [
-            $this->subject->course->name . ' ' . $this->subject->parallel . $this->subject->code,
-            $this->subject->semester->academic_year,
-        ]);
     }
 
     public function getModel(): string

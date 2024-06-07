@@ -2,6 +2,7 @@
 
 namespace App\Filament\Student\Resources\SubjectResource\RelationManagers;
 
+use App\Enums\PostType;
 use App\Filament\RelationManager;
 use App\Filament\Student\Resources\SubjectResource;
 use App\Models\SubjectSchedule;
@@ -9,6 +10,7 @@ use App\Models\Submission;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Str;
 
 /** @property-read \App\Models\Subject $ownerRecord */
 class PostsRelationManager extends RelationManager
@@ -44,6 +46,17 @@ class PostsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\Layout\Stack::make([
                     Tables\Columns\TextColumn::make('title')
+                        ->formatStateUsing(function (SubjectSchedule $record) {
+                            $title = str($record->title)->lower()->startsWith(strtolower($record->post_type))
+                                ? Str::ucfirst($record->title)
+                                : $record->post_type . ' ' . $record->title;
+
+                            if ($record->post_type === PostType::Assignment->value) {
+                                return "$title ({$record->assignment_type})";
+                            }
+
+                            return $title;
+                        })
                         ->placeholder(fn(SubjectSchedule $record) => $record->start_time->isFuture()
                             ? 'Belum ada aktivitas pada pertemuan ini'
                             : 'Tidak ada aktivitas pada pertemuan ini'
@@ -82,10 +95,15 @@ class PostsRelationManager extends RelationManager
                     'subject_schedules.meeting_no',
                     'posts.id as post_id',
                     'posts.title',
+                    'posts.type as post_type',
+                    'assignments.type as assignment_type',
                 ])
-                ->leftJoin('posts', function (JoinClause $join) {
-                    $join->on('posts.subject_id', '=', 'subject_schedules.subject_id')
+                ->leftJoin('posts', function (JoinClause $query) {
+                    $query->on('posts.subject_id', '=', 'subject_schedules.subject_id')
                         ->whereRaw('WEEK(posts.published_at) = WEEK(subject_schedules.start_time)');
+                })
+                ->leftJoin('assignments', function (JoinClause $query) {
+                    $query->on('assignments.id', '=', 'posts.id');
                 })
                 ->where('subject_schedules.subject_id', $this->ownerRecord->id)
                 ->orderBy('subject_schedules.start_time')

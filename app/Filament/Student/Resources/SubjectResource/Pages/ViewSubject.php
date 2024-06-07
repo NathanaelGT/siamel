@@ -52,7 +52,7 @@ class ViewSubject extends ViewRecord
         ];
 
         if ($this->record->group_max_members !== null) {
-            $hasGroup = auth()->user()
+            static $hasGroup = auth()->user()
                 ->student
                 ->groups()
                 ->where('subject_groups.subject_id', $this->record->id)
@@ -73,5 +73,31 @@ class ViewSubject extends ViewRecord
         return [
             Actions\EditAction::make(),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return $this->record->title;
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        $url = fn(string $name = 'index', array $parameters = []) => SubjectResource::getUrl($name, $parameters);
+
+        $breadcrumbs = [];
+        $breadcrumbs[$url()] = SubjectResource::getBreadcrumb();
+        $breadcrumbs[$url('view', [$this->record])] = $this->getTitle();
+
+        if (! is_null($active = $this->activeRelationManager)) {
+            $breadcrumbs[] = $this->getRelationManagers()[$active]::getTitle(
+                $this->record, static::class,
+            );
+        }
+
+        if (filled($cluster = static::getCluster())) {
+            return $cluster::unshiftClusterBreadcrumbs($breadcrumbs);
+        }
+
+        return $breadcrumbs;
     }
 }
