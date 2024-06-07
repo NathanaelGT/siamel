@@ -31,11 +31,13 @@ class PostsRelationManager extends RelationManager
                     })
             )
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->placeholder(fn(SubjectSchedule $record) => $record->start_time->isFuture()
-                        ? 'Belum ada aktivitas pada pertemuan ini'
-                        : 'Tidak ada aktivitas pada pertemuan ini'
-                    ),
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\TextColumn::make('title')
+                        ->placeholder(fn(SubjectSchedule $record) => $record->start_time->isFuture()
+                            ? 'Belum ada aktivitas pada pertemuan ini'
+                            : 'Tidak ada aktivitas pada pertemuan ini'
+                        ),
+                ]),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
