@@ -39,9 +39,6 @@ class GroupsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('subject_group_members_count'),
             ])
-            ->filters([
-                //
-            ])
             ->headerActions([
                 Tables\Actions\CreateAction::make('create-bulk')
                     ->label('Buat')
@@ -125,6 +122,10 @@ class GroupsRelationManager extends RelationManager
                         Forms\Components\Checkbox::make('student_can_manage_group')
                             ->label('Mahasiswa dapat mengelola kelompok')
                             ->default($this->ownerRecord->student_can_manage_group),
+
+                        Forms\Components\Checkbox::make('student_can_create_group')
+                            ->label('Mahasiswa dapat membuat kelompok')
+                            ->default($this->ownerRecord->student_can_create_group),
                     ]))
                     ->action(function (array $data, Tables\Actions\Action $action) {
                         return DB::transaction(function () use ($data, $action) {
@@ -214,21 +215,6 @@ class GroupsRelationManager extends RelationManager
                     ->url(fn(SubjectGroup $record) => SubjectResource::getUrl('group', [
                         $this->ownerRecord, $record,
                     ])),
-                //                Tables\Actions\Action::make('view')
-                //                    ->label('Lihat')
-                //                    ->color('gray')
-                //                    ->icon(FilamentIcon::resolve('actions::view-action') ?? 'heroicon-m-eye')
-                //                    ->modalSubmitAction(false)
-                //                    ->modalCancelAction(false)
-                //                    ->modalHeading(fn(SubjectGroup $record) => 'Anggota ' . $record->name)
-                //                    ->modalContent(function (SubjectGroup $record) {
-                //                        return new HtmlString(Blade::render('@livewire($widgets, $props)', [
-                //                            'widgets' => SubjectResource\Widgets\GroupTableWidget::class,
-                //                            'props'   => [
-                //                                'group' => $record,
-                //                            ],
-                //                        ]));
-                //                    }),
 
                 Tables\Actions\DeleteAction::make()
                     ->modalHeading(fn(SubjectGroup $record) => 'Hapus ' . Str::lower($record->name))
