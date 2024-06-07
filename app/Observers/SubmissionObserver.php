@@ -8,7 +8,7 @@ use App\Exceptions\InvalidRoleException;
 use App\Models\Post;
 use App\Models\SubjectGroup;
 use App\Models\Submission;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class SubmissionObserver
 {
@@ -36,10 +36,11 @@ class SubmissionObserver
                         ->where('id', $submission->assignment_id)
                         ->limit(1)
                         ->select('subject_id'))
-                    ->whereExists(function (Builder $query) use ($user) {
+                    ->whereExists(function (QueryBuilder $query) use ($user) {
                         $query->from('subject_group_members')
                             ->whereColumn('subject_group_members.subject_group_id', 'subject_groups.id')
-                            ->where('student_id', $user->info_id);
+                            ->where('student_id', $user->info_id)
+                            ->whereNull('subject_group_members.deleted_at');
                     })
                     ->value('id'),
             ]);
