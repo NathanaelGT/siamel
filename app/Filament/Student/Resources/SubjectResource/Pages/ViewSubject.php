@@ -10,6 +10,7 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 
+/** @property-read Subject $record */
 class ViewSubject extends ViewRecord
 {
     protected static string $resource = SubjectResource::class;
@@ -46,9 +47,25 @@ class ViewSubject extends ViewRecord
 
     public function getRelationManagers(): array
     {
-        return [
+        $relationManagers = [
             RelationManagers\PostsRelationManager::class,
         ];
+
+        if ($this->record->group_max_members !== null) {
+            $hasGroup = auth()->user()
+                ->student
+                ->groups()
+                ->where('subject_groups.subject_id', $this->record->id)
+                ->exists();
+
+            if ($hasGroup) {
+                $relationManagers[] = RelationManagers\GroupMembersRelationManager::class;
+            } elseif ($this->record->student_can_manage_group) {
+                $relationManagers[] = RelationManagers\GroupsRelationManager::class;
+            }
+        }
+
+        return $relationManagers;
     }
 
     protected function getHeaderActions(): array
