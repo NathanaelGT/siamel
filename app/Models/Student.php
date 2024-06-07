@@ -72,7 +72,8 @@ class Student extends Model implements Contracts\HasAccountContract
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(SubjectGroup::class, 'subject_group_members')
-            ->using(SubjectGroupMember::class);
+            ->using(SubjectGroupMember::class)
+            ->whereNull('subject_group_members.deleted_at');
     }
 
     public function submissions(): MorphMany
