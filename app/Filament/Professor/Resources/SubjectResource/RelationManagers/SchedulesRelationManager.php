@@ -17,30 +17,19 @@ class SchedulesRelationManager extends RelationManager
 {
     protected static string $relationship = 'schedules';
 
-    protected static ?string $title = 'Absensi';
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('meeting_no')
-                    ->required()
-                    ->maxLength(255),
-            ]);
-    }
-
     public function table(Table $table): Table
     {
         return $table
             ->recordTitle(fn(SubjectSchedule $record) => 'Pertemuan ke ' . $record->meeting_no)
             ->paginated(false)
             ->columns([
-                Tables\Columns\TextColumn::make('meeting_no')
-                    ->formatStateUsing(function (SubjectSchedule $record) {
-                        $text = "Pertemuan ke $record->meeting_no";
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\TextColumn::make('meeting_no')
+                        ->formatStateUsing(function (SubjectSchedule $record) {
+                            $text = "Pertemuan ke $record->meeting_no";
 
-                        if ($record->start_time->isFuture()) {
-                            return new HtmlString('
+                            if ($record->start_time->isFuture()) {
+                                return new HtmlString('
                                 <div
                                     title="Pertemuan ini belum dimulai"
                                     class="fi-in-placeholder text-sm leading-6 text-gray-400 dark:text-gray-500"
@@ -48,10 +37,11 @@ class SchedulesRelationManager extends RelationManager
                                     ' . $text . '
                                 </div>
                             ');
-                        }
+                            }
 
-                        return $text;
-                    }),
+                            return $text;
+                        }),
+                ]),
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $query->with('subject:id,slug,course_id');
@@ -96,7 +86,7 @@ class SchedulesRelationManager extends RelationManager
                     ->label('Absen')
                     ->icon('heroicon-o-pencil-square')
                     ->color('success')
-                    ->hidden(fn(SubjectSchedule $record) => $record->start_time->isFuture())
+                    ->disabled(fn(SubjectSchedule $record) => $record->start_time->isFuture())
                     ->url(fn(SubjectSchedule $record) => SubjectResource::getUrl('attendance', [
                         $record->subject,
                         $record->meeting_no,
