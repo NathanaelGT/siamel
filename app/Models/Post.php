@@ -71,11 +71,15 @@ class Post extends Model
         return Attribute::get(function (): string {
             $prefix = $this->type->value;
 
-            if (str($this->title)->lower()->startsWith(strtolower($prefix))) {
-                return Str::ucfirst($this->title);
+            $title = str($this->title)->lower()->startsWith(strtolower($prefix))
+                ? Str::ucfirst($this->title)
+                : $this->type->value . ' ' . $this->title;
+
+            if ($this->type === PostType::Assignment) {
+                return "$title ({$this->assignment->type->value})";
             }
 
-            return $this->type->value . ' ' . $this->title;
+            return $title;
         });
     }
 }
