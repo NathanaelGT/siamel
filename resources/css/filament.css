@@ -58,7 +58,7 @@ td.fc-day-sat {
         border-bottom-right-radius: 0;
     }
 
-    > .fi-tabs:first-child ~ [role="tabpanel"] .fi-ta-ctn {
+    > .fi-tabs:first-child ~ [role="tabpanel"] > .fi-resource-relation-manager > .fi-ta > .fi-ta-ctn {
         border-top-left-radius: 0;
     }
 }
