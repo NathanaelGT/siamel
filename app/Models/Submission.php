@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Str;
 
 #[ObservedBy(SubmissionObserver::class)]
@@ -77,17 +77,22 @@ class Submission extends Model
                     ->where('submissionable_id', $studentId);
             })
             ->orWhere(function (Builder $query) use ($studentId, $subjectId) {
-                $query
-                    ->where('submissionable_type', SubjectGroup::class)
-                    ->where('submissionable_id', SubjectGroup::query()
-                        ->select('id')
-                        ->when($subjectId !== null)->where('subject_id', $subjectId)
-                        ->whereExists(function (QueryBuilder $query) use ($studentId) {
-                            $query->from('subject_group_members')
-                                ->whereColumn('subject_group_members.subject_group_id', 'subject_groups.id')
-                                ->where('student_id', $studentId);
+                $studentGroupsQuery = SubjectGroupMember::query()
+                    ->select('subject_group_id')
+                    ->where('student_id', $studentId);
+
+                $query->where('submissionable_type', SubjectGroup::class);
+
+                if ($subjectId === null) {
+                    $query->whereIn('submissionable_id', $studentGroupsQuery);
+                } else {
+                    $query->where('submissionable_id', $studentGroupsQuery
+                        ->join('subject_groups', function (JoinClause $query) {
+                            $query->on('subject_group_members.subject_group_id', '=', 'subject_groups.id')
+                                ->limit(1);
                         })
-                        ->limit(1));
+                        ->where('subject_groups.subject_id', $subjectId));
+                }
             });
     }
 
