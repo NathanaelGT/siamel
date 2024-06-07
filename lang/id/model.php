@@ -3,8 +3,13 @@
 return [
     'global' => [
         'columns' => [
-            'created_at' => 'Terdaftar pada',
-            'updated_at' => 'Diperbarui pada',
+            'no'            => 'No',
+            'registered_at' => 'Bergabung pada',
+            'published_at'  => 'Diunggah pada',
+            'submitted_at'  => 'Dikumpul pada',
+            'scored_at'     => 'Dinilai pada',
+            'created_at'    => 'Terdaftar pada',
+            'updated_at'    => 'Diperbarui pada',
         ],
 
         'aggregate' => [
@@ -13,6 +18,23 @@ return [
             'max'   => ':Column terbesar',
             'avg'   => 'Rata-rata :column',
             'sum'   => 'Jumlah :column',
+        ],
+    ],
+
+    \App\Models\Assignment::class => [
+        'name'    => 'Tugas',
+        'columns' => [
+            'type'     => 'Jenis',
+            'category' => 'Kategori',
+            'deadline' => 'Batas waktu',
+        ],
+    ],
+
+    \App\Models\Attendance::class => [
+        'name'    => 'Presensi',
+        'columns' => [
+            'status' => 'Status',
+            'date'   => 'Tanggal',
         ],
     ],
 
@@ -42,6 +64,16 @@ return [
         ],
     ],
 
+    \App\Models\Post::class => [
+        'name'    => 'Unggahan',
+        'columns' => [
+            'title'       => 'Judul',
+            'content'     => 'Isi',
+            'type'        => 'Jenis',
+            'attachments' => 'Berkas',
+        ],
+    ],
+
     \App\Models\Professor::class => [
         'name'    => 'Dosen',
         'columns' => [
@@ -53,8 +85,19 @@ return [
     \App\Models\Room::class => [
         'name'    => 'Ruangan',
         'columns' => [
-            'name'     => 'Ruangan',
-            'capacity' => 'Kapasitas',
+            'name'      => 'Ruangan',
+            'full_name' => 'Ruangan',
+            'capacity'  => 'Kapasitas',
+        ],
+    ],
+
+    \App\Models\SubjectSchedule::class => [
+        'name'    => 'Pertemuan',
+        'columns' => [
+            'meeting_no' => 'Pertemuan ke',
+            'date'       => 'Tanggal',
+            'start_time' => 'Jam mulai',
+            'end_time'   => 'Jam selesai',
         ],
     ],
 
@@ -85,6 +128,13 @@ return [
         ],
     ],
 
+    \App\Models\StudentSubject::class => [
+        'name'    => 'Mahasiswa',
+        'columns' => [
+            //
+        ],
+    ],
+
     \App\Models\StudyProgram::class => [
         'name'    => 'Program studi',
         'columns' => [
@@ -106,6 +156,29 @@ return [
             'end_time'   => 'Jam selesai',
             'time'       => 'Jam',
             'year'       => 'Tahun',
+        ],
+    ],
+
+    \App\Models\SubjectGroup::class => [
+        'name'    => 'Kelompok',
+        'columns' => [
+            'name' => 'Kelompok',
+        ],
+    ],
+
+    \App\Models\SubjectGroupMember::class => [
+        'name'    => 'Anggota kelompok',
+        'columns' => [
+            //
+        ],
+    ],
+
+    \App\Models\Submission::class => [
+        'name'    => 'Pengumpulan',
+        'columns' => [
+            'note'       => 'Catatan',
+            'score'      => 'Nilai',
+            'updated_at' => 'Terakhir diubah',
         ],
     ],
 
