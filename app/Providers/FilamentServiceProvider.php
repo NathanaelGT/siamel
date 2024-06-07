@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
+use Filament\Infolists\Infolist;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Table;
@@ -12,6 +13,11 @@ use Illuminate\Support\ServiceProvider;
 
 class FilamentServiceProvider extends ServiceProvider
 {
+    public const string DEFAULT_CURRENT = 'idr';
+    public const string DEFAULT_DATE_DISPLAY_FORMAT = 'j M Y';
+    public const string DEFAULT_DATE_TIME_DISPLAY_FORMAT = 'j M Y \P\u\k\u\l H:i';
+    public const string DEFAULT_TIME_DISPLAY_FORMAT = 'H:i';
+
     public function boot(): void
     {
         $this->bind();
@@ -39,10 +45,15 @@ class FilamentServiceProvider extends ServiceProvider
 
     protected function setStaticProperties(): void
     {
-        Table::$defaultCurrency = 'idr';
-        Table::$defaultDateDisplayFormat = 'j M Y';
-        Table::$defaultDateTimeDisplayFormat = 'j M Y \P\u\k\u\l H:i';
-        Table::$defaultTimeDisplayFormat = 'H:i';
+        Table::$defaultCurrency = static::DEFAULT_CURRENT;
+        Table::$defaultDateDisplayFormat = static::DEFAULT_DATE_DISPLAY_FORMAT;
+        Table::$defaultDateTimeDisplayFormat = static::DEFAULT_DATE_TIME_DISPLAY_FORMAT;
+        Table::$defaultTimeDisplayFormat = static::DEFAULT_TIME_DISPLAY_FORMAT;
+
+        Infolist::$defaultCurrency = static::DEFAULT_CURRENT;
+        Infolist::$defaultDateDisplayFormat = static::DEFAULT_DATE_DISPLAY_FORMAT;
+        Infolist::$defaultDateTimeDisplayFormat = static::DEFAULT_DATE_TIME_DISPLAY_FORMAT;
+        Infolist::$defaultTimeDisplayFormat = static::DEFAULT_TIME_DISPLAY_FORMAT;
     }
 
     protected function configures(): void
