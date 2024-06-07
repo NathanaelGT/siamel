@@ -32,13 +32,16 @@ class Subject extends Model
         'note',
         'day',
         'start_time',
+        'student_can_manage_group',
+        'group_max_members',
     ];
 
     protected function casts(): array
     {
         return [
-            'day'        => WorkingDay::class,
-            'start_time' => 'datetime',
+            'day'                      => WorkingDay::class,
+            'start_time'               => 'datetime',
+            'student_can_manage_group' => 'bool',
         ];
     }
 
@@ -93,6 +96,16 @@ class Subject extends Model
     {
         return $this->hasManyThrough(Submission::class, Post::class, secondKey: 'assignment_id')
             ->where('type', PostType::Assignment);
+    }
+
+    public function groups(): HasMany
+    {
+        return $this->hasMany(SubjectGroup::class);
+    }
+
+    public function groupMembers(): HasManyThrough
+    {
+        return $this->hasManyThrough(SubjectGroupMember::class, SubjectGroup::class);
     }
 
     protected function title(): Attribute
