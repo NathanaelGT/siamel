@@ -71,7 +71,8 @@ class SelectedSubjects extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label('Tambah KRS'),
+                ->label('Tambah KRS')
+                ->disabled(fn() => $this->table->getRecords()->sum('course.credits') >= 24),
         ];
     }
 
