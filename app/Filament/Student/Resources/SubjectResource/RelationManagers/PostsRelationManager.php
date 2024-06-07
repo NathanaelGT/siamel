@@ -5,6 +5,7 @@ namespace App\Filament\Student\Resources\SubjectResource\RelationManagers;
 use App\Filament\RelationManager;
 use App\Filament\Student\Resources\SubjectResource;
 use App\Models\SubjectSchedule;
+use App\Models\Submission;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Query\JoinClause;
@@ -18,6 +19,16 @@ class PostsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        $submissionExistMap = function () {
+            static $result = Submission::query()
+                ->whereStudent(auth()->user()->student, $this->ownerRecord)
+                ->whereIn('assignment_id', $this->getTableRecords()->pluck('post_id')->filter())
+                ->pluck('submissions.assignment_id')
+                ->mapWithKeys(fn(int $assignmentId) => [$assignmentId => $assignmentId]);
+
+            return $result;
+        };
+
         return $table
             ->recordTitleAttribute('title')
             ->paginated(false)
@@ -40,6 +51,19 @@ class PostsRelationManager extends RelationManager
                 ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('upload')
+                    ->visible(fn(SubjectSchedule $record) => $record->post_type === PostType::Assignment->value)
+                    ->icon('heroicon-m-cloud-arrow-up')
+                    ->tooltip(fn(SubjectSchedule $record) => $submissionExistMap()[$record->post_id] ?? false
+                        ? null
+                        : 'Anda belum mengumpulkan tugas ini')
+                    ->color(fn(SubjectSchedule $record) => $submissionExistMap()[$record->post_id] ?? false
+                        ? 'success'
+                        : 'warning')
+                    ->url(function (SubjectSchedule $record) {
+                        return SubjectResource::getUrl('upload', [$this->ownerRecord, $record->post_id]);
+                    }),
+
                 Tables\Actions\ViewAction::make()
                     ->hidden(fn(SubjectSchedule $record) => $record->title === null)
                     ->url(function (SubjectSchedule $record) {
