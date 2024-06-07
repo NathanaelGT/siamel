@@ -307,7 +307,6 @@ CREATE TABLE `subject_group_members`
 (
     `subject_group_id` bigint unsigned NOT NULL,
     `student_id`       bigint unsigned NOT NULL,
-    UNIQUE KEY `subject_group_members_subject_group_id_student_id_unique` (`subject_group_id`,`student_id`),
     KEY                `subject_group_members_student_id_foreign` (`student_id`),
     CONSTRAINT `subject_group_members_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`),
     CONSTRAINT `subject_group_members_subject_group_id_foreign` FOREIGN KEY (`subject_group_id`) REFERENCES `subject_groups` (`id`)

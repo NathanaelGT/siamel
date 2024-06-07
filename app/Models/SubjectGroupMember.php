@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SubjectGroupMember extends Pivot
 {
+    use SoftDeletes;
+
     protected $table = 'subject_group_members';
 
     public $incrementing = true;
+
+    public $timestamps = false;
 
     public function group(): BelongsTo
     {

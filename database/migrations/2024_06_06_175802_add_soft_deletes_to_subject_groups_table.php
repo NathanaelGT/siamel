@@ -7,15 +7,17 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('subject_group_members', function (Blueprint $table) {
-            $table->id()->first();
+        Schema::table('subject_groups', function (Blueprint $table) {
+            $table->softDeletes();
+
+            $table->unique(['subject_id', 'name', 'deleted_at']);
         });
     }
 
     public function down(): void
     {
-        Schema::table('subject_group_members', function (Blueprint $table) {
-            $table->dropColumn('id');
+        Schema::table('subject_groups', function (Blueprint $table) {
+            $table->dropSoftDeletes();
         });
     }
 };
