@@ -7,12 +7,14 @@ use RuntimeException;
 
 class InvalidRoleException extends RuntimeException
 {
-    public function __construct(Role | array $expect, Role $actual)
+    public function __construct(Role | array $expect, ?Role $actual)
     {
         $expectedRoles = collect($expect)
             ->map(fn(Role $role) => "[$role->name]")
             ->join(' or ');
 
-        parent::__construct("Unexpected role: [$actual->name], Expected $expectedRoles");
+        $unexpected = $actual?->name ?? 'null';
+
+        parent::__construct("Unexpected role: [$unexpected], Expected $expectedRoles");
     }
 }

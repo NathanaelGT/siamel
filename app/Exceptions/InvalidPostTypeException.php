@@ -7,8 +7,10 @@ use RuntimeException;
 
 class InvalidPostTypeException extends RuntimeException
 {
-    public function __construct(PostType $expect, PostType $actual)
+    public function __construct(PostType $expect, ?PostType $actual)
     {
-        parent::__construct("Unexpected post type: [$actual->name], Expected [$expect->name]");
+        $unexpected = $actual?->name ?? 'null';
+
+        parent::__construct("Unexpected post type: [$unexpected], Expected [$expect->name]");
     }
 }
