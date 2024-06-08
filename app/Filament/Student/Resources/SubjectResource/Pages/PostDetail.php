@@ -6,14 +6,17 @@ use App\Enums\PostType;
 use App\Filament\Student\Resources\SubjectResource;
 use App\Infolists\Components\AttachmentListEntry;
 use App\Models\Post;
+use App\Models\Semester;
 use App\Models\Subject;
+use App\Period\Period;
 use App\Providers\FilamentServiceProvider;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Colors\Color;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\Locked;
 use Thiktak\FilamentSimpleListEntry\Infolists\Components\SimpleListEntry;
@@ -170,16 +173,13 @@ class PostDetail extends ViewRecord
 
     protected function resolveRecord(int | string $key): Post
     {
-        $this->subject = Subject::query()->where('slug', $key)->first();
-        if ($this->subject === null) {
-            throw (new ModelNotFoundException)->setModel(Subject::class, [$key]);
-        }
+        $this->subject = SubjectResource::getEloquentQuery()
+            ->where('slug', $key)
+            ->unless(Gate::check(Period::Learning), function (Builder $query) {
+                $query->where('semester_id', '!=', Semester::current()->id);
+            })
+            ->firstOrFail();
 
-        $post = $this->subject->posts()->find($this->postId);
-        if ($post === null) {
-            throw (new ModelNotFoundException)->setModel(Post::class, [$this->postId]);
-        }
-
-        return $post;
+        return $this->subject->posts()->findOrFail($this->postId);
     }
 }

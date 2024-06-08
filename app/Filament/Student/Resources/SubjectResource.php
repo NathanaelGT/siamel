@@ -6,12 +6,13 @@ use App\Filament\Resource;
 use App\Filament\Student\Resources\SubjectResource\Pages;
 use App\Models\Semester;
 use App\Models\Subject;
+use App\Period\Period;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 
 class SubjectResource extends Resource
 {
@@ -23,7 +24,13 @@ class SubjectResource extends Resource
     {
         $semesters = Semester::query()
             ->orderBy('id', 'desc')
-            ->limit(8)
+            ->when(Gate::check(Period::Learning), function (Builder $query) {
+                $query->where('id', '<=', Semester::current()->id)
+                    ->limit(auth()->user()->student->semester);
+            }, function (Builder $query) {
+                $query->where('id', '<', Semester::current()->id)
+                    ->limit(auth()->user()->student->semester - 1);
+            })
             ->pluck('academic_year', 'id')
             ->map(fn(string $label) => substr($label, 9))
             ->all();
@@ -90,10 +97,11 @@ class SubjectResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return Subject::query()
-            ->select('subjects.*')
-            ->join('student_subject', function (JoinClause $join) {
-                $join->on('subjects.id', '=', 'student_subject.subject_id')
-                    ->where('student_id', auth()->user()->info_id);
+            ->whereStudent(auth()->user()->info_id)
+            ->when(Gate::check(Period::Learning), function (Builder $query) {
+                $query->where('semester_id', '<=', Semester::current()->id);
+            }, function (Builder $query) {
+                $query->where('semester_id', '<', Semester::current()->id);
             });
     }
 

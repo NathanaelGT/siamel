@@ -186,7 +186,7 @@ class UploadSubmission extends EditRecord
 
     protected function resolveRecord(string | int | null $key): Submission
     {
-        $this->subject = Subject::query()
+        $this->subject = SubjectResource::getEloquentQuery()
             ->where('slug', $this->subject)
             ->firstOrFail();
 

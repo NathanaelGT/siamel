@@ -8,6 +8,7 @@ use App\Filament\Student\Clusters\InformationSystemCluster\Resources\SubjectReso
 use App\Models\Semester;
 use App\Models\StudentSubject;
 use App\Models\Subject;
+use App\Period\Period;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
@@ -15,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use WeakMap;
 
 class ListSubject extends ListRecords
@@ -24,6 +26,11 @@ class ListSubject extends ListRecords
     protected static ?string $breadcrumb = 'Daftar';
 
     protected static ?string $title = 'KRS';
+
+    public function boot(): void
+    {
+        Gate::authorize(Period::KRS);
+    }
 
     public function table(Table $table): Table
     {
@@ -67,7 +74,7 @@ class ListSubject extends ListRecords
                     ->formatStateUsing(function (Subject $record) {
                         return $record->course_name . ' ' . $record->parallel . $record->code;
                     })
-                    ->searchable('courses.name'),
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('course_credits')
                     ->label('SKS'),
@@ -83,23 +90,23 @@ class ListSubject extends ListRecords
 
                 Tables\Columns\TextColumn::make('capacity')
                     ->color(fn(Subject $record) => match (true) {
-                        $record->total_students >= $record->capacity       => 'danger',
-                        $record->total_students >= $record->capacity * 0.8 => 'warning',
+                        $record->students_count >= $record->capacity       => 'danger',
+                        $record->students_count >= $record->capacity * 0.8 => 'warning',
                         default                                            => 'success',
                     })
                     ->weight(fn(Subject $record) => match (true) {
-                        $record->total_students >= $record->capacity * 0.8 => FontWeight::Bold,
+                        $record->students_count >= $record->capacity * 0.8 => FontWeight::Bold,
                         default                                            => FontWeight::Medium,
                     })
                     ->formatStateUsing(function (Subject $record) {
-                        return "$record->total_students/$record->capacity";
+                        return "$record->students_count/$record->capacity";
                     }),
             ])
             ->actions([
                 SubjectResource\Actions\RegisterAction::make()
                     ->button()
                     ->disabled(function (Subject $record) use ($studentSubjects, &$overlaps) {
-                        if ($record->total_students >= $record->capacity) {
+                        if ($record->students_count >= $record->capacity) {
                             return true;
                         }
 
@@ -124,41 +131,38 @@ class ListSubject extends ListRecords
 
                         return null;
                     }),
-            ]);
-    }
-
-    protected function getTableQuery(): ?Builder
-    {
-        return Subject::query()
-            ->select([
-                'subjects.id',
-                'courses.name as course_name',
-                'subjects.parallel',
-                'subjects.code',
-                'courses.credits as course_credits',
-                'subjects.day',
-                'courses.name as course_name',
-                'subjects.start_time',
-                DB::raw('(select count(*) from `student_subject` where `student_subject`.`subject_id` = `subjects`.`id`) as `total_students`'),
-                'subjects.capacity',
             ])
-            ->join('courses', function (JoinClause $join) {
-                $join->on('courses.id', '=', 'subjects.course_id')
-                    ->whereIn('courses.semester_parity', [Semester::current()->parity, CourseParity::Null])
-                    ->where('courses.semester_required', '<=', auth()->user()->info->semester)
-                    ->where('courses.study_program_id', auth()->user()->info->study_program_id);
-            })
-            ->where('subjects.semester_id', Semester::current()->id)
-            ->whereNotIn(
-                'subjects.course_id',
-                Subject::query()
-                    ->select('course_id')
-                    ->whereIn(
-                        'id',
-                        StudentSubject::query()
-                            ->select('subject_id')
-                            ->where('student_id', auth()->user()->info_id)
-                    )
-            );
+            ->modifyQueryUsing(function (Builder $query) {
+                $query
+                    ->select([
+                        'subjects.id',
+                        'courses.name as course_name',
+                        'subjects.parallel',
+                        'subjects.code',
+                        'courses.credits as course_credits',
+                        'subjects.day',
+                        'subjects.start_time',
+                        DB::raw('(select count(*) from `student_subject` where `student_subject`.`subject_id` = `subjects`.`id`) as `students_count`'),
+                        'subjects.capacity',
+                    ])
+                    ->join('courses', function (JoinClause $join) {
+                        $join->on('courses.id', '=', 'subjects.course_id')
+                            ->whereIn('courses.semester_parity', [Semester::current()->parity, CourseParity::Null])
+                            ->where('courses.semester_required', '<=', auth()->user()->info->semester)
+                            ->where('courses.study_program_id', auth()->user()->info->study_program_id);
+                    })
+                    ->where('subjects.semester_id', Semester::current()->id)
+                    ->whereNotIn(
+                        'subjects.course_id',
+                        Subject::query()
+                            ->select('course_id')
+                            ->whereIn(
+                                'id',
+                                StudentSubject::query()
+                                    ->select('subject_id')
+                                    ->where('student_id', auth()->user()->info_id)
+                            )
+                    );
+            });
     }
 }

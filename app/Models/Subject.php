@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PostType;
 use App\Enums\WorkingDay;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Carbon;
 
 class Subject extends Model
@@ -108,6 +110,20 @@ class Subject extends Model
     public function groupMembers(): HasManyThrough
     {
         return $this->hasManyThrough(SubjectGroupMember::class, SubjectGroup::class);
+    }
+
+    public function scopeWhereStudent(Builder $query, Student | int $student): void
+    {
+        $studentId = $student instanceof Student ? $student->id : $student;
+
+        if ($query->getSelect() === null) {
+            $query->select(['subjects.*']);
+        }
+
+        $query->join('student_subject', function (JoinClause $query) use ($studentId) {
+            $query->on('subjects.id', '=', 'student_subject.subject_id')
+                ->where('student_id', $studentId);
+        });
     }
 
     protected function title(): Attribute

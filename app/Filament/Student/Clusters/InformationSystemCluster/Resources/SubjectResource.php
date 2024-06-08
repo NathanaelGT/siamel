@@ -8,7 +8,9 @@ use App\Filament\Student\Clusters\InformationSystemCluster\Resources\SubjectReso
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\SubjectResource\RelationManagers;
 use App\Models\Semester;
 use App\Models\Subject;
+use App\Period\Period;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class SubjectResource extends Resource
 {
@@ -17,6 +19,8 @@ class SubjectResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $cluster = InformationSystemCluster::class;
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'KRS';
 
@@ -39,11 +43,11 @@ class SubjectResource extends Resource
 
     public static function canCreate(): bool
     {
-        return true;
+        return Gate::check(Period::KRS);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return $record->semester_id === Semester::current()->id;
+        return Gate::check(Period::KRS) && $record->semester_id === Semester::current()->id;
     }
 }
