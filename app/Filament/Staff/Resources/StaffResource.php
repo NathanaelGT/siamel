@@ -42,12 +42,14 @@ class StaffResource extends Resource
                 ->required(),
 
             Forms\Components\Select::make('faculty_id')
+                ->disabledOn('edit')
                 ->relationship('faculty', 'name')
                 ->searchable()
                 ->preload(),
 
             Forms\Components\TextInput::make('id')
-                ->unique(ignoreRecord: true)
+                ->disabledOn('edit')
+                ->unique()
                 ->required()
                 ->integer()
                 ->maxLength(11)
@@ -56,6 +58,7 @@ class StaffResource extends Resource
                 ]),
 
             Forms\Components\TextInput::make('account.email')
+                ->disabledOn('edit')
                 ->email()
                 ->required()
                 ->maxLength(255),
