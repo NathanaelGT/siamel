@@ -40,7 +40,7 @@ class EditStaff extends EditRecord
         $this->form->fill($state);
     }
 
-    protected function refreshFormData(array $attributes): void
+    public function refreshFormData(array $attributes): void
     {
         $this->data = [
             ...$this->data,
