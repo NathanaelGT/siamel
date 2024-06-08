@@ -6,6 +6,7 @@ use App\Enums\EmployeeStatus;
 use App\Filament\Resource;
 use App\Filament\Staff\Resources\SubjectResource\Pages;
 use App\Filament\Staff\Resources\SubjectResource\RelationManagers;
+use App\Models\Course;
 use App\Models\Professor;
 use App\Models\Subject;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -30,7 +31,11 @@ class SubjectResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->sortable()
-                    ->searchable('course.name'),
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereIn('course_id', once(fn() => Course::query()
+                            ->where('name', 'like', "%$search%")
+                            ->pluck('id')));
+                    }),
 
                 Tables\Columns\TextColumn::make('course.studyProgram.name')
                     ->hidden(fn(Component $livewire) => $livewire instanceof RelationManager)
@@ -98,7 +103,8 @@ class SubjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\StudentsRelationManager::class,
+            RelationManagers\GroupsRelationManager::class,
         ];
     }
 
