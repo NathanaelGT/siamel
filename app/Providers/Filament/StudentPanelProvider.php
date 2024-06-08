@@ -3,11 +3,11 @@
 namespace App\Providers\Filament;
 
 use App\Filament\FilamentPanel;
+use App\Filament\Student\Widgets;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 
 class StudentPanelProvider extends PanelProvider
 {
@@ -24,7 +24,7 @@ class StudentPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->widgets([
-                Widgets\AccountWidget::class,
+                Widgets\ActiveAssignmentTable::class,
             ]);
     }
 }
