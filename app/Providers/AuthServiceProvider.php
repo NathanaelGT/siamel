@@ -6,7 +6,9 @@ use App\Enums\SemesterSchedules;
 use App\Models\Semester;
 use App\Models\User;
 use App\Period\Period;
+use Closure;
 use Filament\Facades\Filament;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +30,11 @@ class AuthServiceProvider extends ServiceProvider
 
     protected function definePeriodGate(): void
     {
-        Gate::define(Period::Learning, fn(?User $user) => once(function () {
+        $optionalCached = fn(Closure $callback) => function (?User $user) use ($callback) {
+            return once(fn() => $callback($user) ?: Response::denyAsNotFound());
+        };
+
+        Gate::define(Period::Learning, $optionalCached(function () {
             $period = Semester::current()
                 ->schedules()
                 ->whereIn('name', [
@@ -48,18 +54,30 @@ class AuthServiceProvider extends ServiceProvider
             );
         }));
 
-        Gate::define(Period::KRS, fn(?User $user) => once(function () {
-            $period = Semester::current()
-                ->schedules()
-                ->where('name', SemesterSchedules::KRS)
-                ->toBase()
-                ->first([
-                    DB::raw('min(`date`) as `min`'),
-                    DB::raw('max(`date`) as `max`'),
-                ]);
+
+        $krsPeriod = fn() => once(fn() => Semester::current()
+            ->schedules()
+            ->where('name', SemesterSchedules::KRS)
+            ->toBase()
+            ->first([
+                DB::raw('min(`date`) as `min`'),
+                DB::raw('max(`date`) as `max`'),
+            ]));
+
+        Gate::define(Period::KRS, $optionalCached(function () use ($krsPeriod) {
+            $period = $krsPeriod();
 
             return now()->isBetween(
                 $period->min,
+                Carbon::parse($period->max)->addWeek()->endOfWeek(),
+            );
+        }));
+
+        Gate::define(Period::KRSPreparation, $optionalCached(function () use ($krsPeriod) {
+            $period = $krsPeriod();
+
+            return now()->isBetween(
+                Carbon::parse($period->min)->subWeeks(2)->endOfWeek(),
                 Carbon::parse($period->max)->addWeek()->endOfWeek(),
             );
         }));
