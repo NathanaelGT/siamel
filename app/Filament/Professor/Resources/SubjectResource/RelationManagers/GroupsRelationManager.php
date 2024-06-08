@@ -6,6 +6,7 @@ use App\Filament\Professor\Resources\SubjectResource;
 use App\Filament\RelationManager;
 use App\Models\Student;
 use App\Models\SubjectGroup;
+use App\Period\Period;
 use App\Service\SubjectGroup\Name;
 use Filament\Facades\Filament;
 use Filament\Forms;
@@ -33,7 +34,9 @@ class GroupsRelationManager extends RelationManager
             ->paginated(false)
             ->modelLabel('kelompok')
             ->recordTitleAttribute('name')
-            ->emptyStateHeading('Tidak ada kelompok')
+            ->emptyStateHeading(fn() => $this->ownerRecord->group_max_members === null
+                ? 'Tidak ada kelompok'
+                : 'Belum ada kelompok')
             ->emptyStateDescription(null)
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
@@ -44,13 +47,14 @@ class GroupsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make('create-bulk')
                     ->label('Buat')
                     ->createAnother(false)
-                    ->hidden($groups->isNotEmpty())
+                    ->hidden($groups->isNotEmpty() || ! Gate::check(Period::Learning))
                     ->successNotificationTitle('Kelompok berhasil dibuat')
                     ->form(fn(Form $form) => $form
                         ->model(SubjectGroup::class)
                         ->schema([
                             Forms\Components\TextInput::make('member_count')
                                 ->label('Jumlah mahasiswa per kelompok')
+                                ->default($this->ownerRecord->group_max_members)
                                 ->required()
                                 ->integer()
                                 ->minValue(1)
@@ -109,7 +113,6 @@ class GroupsRelationManager extends RelationManager
 
                 Tables\Actions\Action::make('setting')
                     ->label('Pengaturan')
-                    ->hidden($groups->isEmpty())
                     ->successNotificationTitle('Pengaturan kelompok berhasil disimpan')
                     ->fillForm(fn() => $this->ownerRecord->attributesToArray())
                     ->form(fn(Form $form) => $form->schema([
@@ -154,7 +157,7 @@ class GroupsRelationManager extends RelationManager
 
                 Tables\Actions\CreateAction::make()
                     ->createAnother(false)
-                    ->hidden($groups->isEmpty())
+                    ->hidden($groups->isEmpty() || ! Gate::check(Period::Learning))
                     ->successNotificationTitle('Kelompok berhasil dibuat')
                     ->form(function (Form $form) {
                         $this->ownerRecord->students->load('account:id,name');

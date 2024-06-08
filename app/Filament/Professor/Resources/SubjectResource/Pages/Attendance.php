@@ -7,6 +7,7 @@ use App\Filament\Professor\Resources\SubjectResource;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\SubjectSchedule;
+use App\Period\Period;
 use App\Providers\FilamentServiceProvider;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 
@@ -31,6 +33,15 @@ class Attendance extends ListRecords
     public string $meetingNo;
 
     protected static string $resource = SubjectResource::class;
+
+    public function boot(): void
+    {
+        Gate::authorize(Period::Learning);
+
+        if ($this->subjectSchedule->start_time->isFuture()) {
+            abort(404);
+        }
+    }
 
     public function table(Table $table): Table
     {

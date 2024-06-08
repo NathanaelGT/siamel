@@ -6,11 +6,13 @@ use App\Enums\AttendanceStatus;
 use App\Filament\RelationManager;
 use App\Models\Attendance;
 use App\Models\Student;
+use App\Period\Period;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\Gate;
 
 /** @property-read \App\Models\Subject $ownerRecord */
 class StudentsRelationManager extends RelationManager
@@ -35,6 +37,7 @@ class StudentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('account.name'),
 
                 Tables\Columns\TextColumn::make('attendances')
+                    ->visible(Gate::check(Period::Learning))
                     ->formatStateUsing(function (Student $record) {
                         $record->attendance = round($record->attendances->percentage(function (Attendance $attendance) {
                             return ! in_array($attendance->status, [
@@ -56,9 +59,13 @@ class StudentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('group_name')
                     ->label('Kelompok')
                     ->placeholder('Belum memiliki kelompok')
-                    ->visible($hasGroups),
+                    ->visible($hasGroups && Gate::check(Period::Learning)),
             ])
             ->modifyQueryUsing(function (Builder $query) use ($hasGroups) {
+                if (! Gate::check(Period::Learning)) {
+                    return;
+                }
+
                 $query->with([
                     'attendances' => function (HasMany $query) {
                         $query->select(['student_id', 'status'])->whereIn(
@@ -68,17 +75,19 @@ class StudentsRelationManager extends RelationManager
                     },
                 ]);
 
-                if ($hasGroups) {
-                    $query->addSelect('subject_groups.name as group_name')
-                        ->leftJoin('subject_group_members', function (JoinClause $query) {
-                            $query->on('students.id', '=', 'subject_group_members.student_id')
-                                ->whereNull('subject_group_members.deleted_at');
-                        })
-                        ->leftJoin('subject_groups', function (JoinClause $query) {
-                            $query->on('subject_group_members.subject_group_id', '=', 'subject_groups.id')
-                                ->whereNull('subject_groups.deleted_at');
-                        });
+                if (! $hasGroups) {
+                    return;
                 }
+
+                $query->addSelect('subject_groups.name as group_name')
+                    ->leftJoin('subject_group_members', function (JoinClause $query) {
+                        $query->on('students.id', '=', 'subject_group_members.student_id')
+                            ->whereNull('subject_group_members.deleted_at');
+                    })
+                    ->leftJoin('subject_groups', function (JoinClause $query) {
+                        $query->on('subject_group_members.subject_group_id', '=', 'subject_groups.id')
+                            ->whereNull('subject_groups.deleted_at');
+                    });
             });
     }
 }

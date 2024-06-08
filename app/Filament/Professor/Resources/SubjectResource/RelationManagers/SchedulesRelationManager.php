@@ -5,12 +5,14 @@ namespace App\Filament\Professor\Resources\SubjectResource\RelationManagers;
 use App\Filament\Professor\Resources\SubjectResource;
 use App\Filament\RelationManager;
 use App\Models\SubjectSchedule;
+use App\Period\Period;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 
 class SchedulesRelationManager extends RelationManager
@@ -53,6 +55,7 @@ class SchedulesRelationManager extends RelationManager
                     ->modalHeading(fn(SubjectSchedule $record) => 'Atur ulang jadwal pertamuan ke ' . $record->meeting_no)
                     ->successNotificationTitle(fn(SubjectSchedule $record) => 'Jadwal pertemuan ke ' . $record->meeting_no . ' berhasil diatur ulang')
                     ->modalSubmitActionLabel('Reschedule')
+                    ->authorize(Gate::check(Period::Learning))
                     ->form(fn(Form $form, SubjectSchedule $record) => $form->columns(2)->schema([
                         Forms\Components\DateTimePicker::make('start_time')
                             ->label('Waktu mulai')
@@ -87,13 +90,14 @@ class SchedulesRelationManager extends RelationManager
                     ->icon('heroicon-o-pencil-square')
                     ->color('success')
                     ->disabled(fn(SubjectSchedule $record) => $record->start_time->isFuture())
+                    ->authorize(Gate::check(Period::Learning))
                     ->url(fn(SubjectSchedule $record) => SubjectResource::getUrl('attendance', [
                         $record->subject,
                         $record->meeting_no,
                     ])),
             ])
             ->recordUrl(function (SubjectSchedule $record) {
-                if ($record->start_time->isFuture()) {
+                if ($record->start_time->isFuture() || ! Gate::check(Period::Learning)) {
                     return null;
                 }
 

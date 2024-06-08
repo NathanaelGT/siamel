@@ -7,6 +7,7 @@ use App\Filament\Professor\Resources\SubjectResource;
 use App\Filament\RelationManager;
 use App\Models\Post;
 use App\Models\SubjectSchedule;
+use App\Period\Period;
 use Filament\Forms\Form;
 use Filament\Infolists\Infolist;
 use Filament\Tables;
@@ -14,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 /** @property-read \App\Models\Subject $ownerRecord */
 class PostsRelationManager extends RelationManager
@@ -59,11 +61,11 @@ class PostsRelationManager extends RelationManager
             ->headerActions([
                 SubjectResource\Actions\CreateLearningMaterialAction::make()
                     ->subject($this->ownerRecord)
-                    ->authorize(fn() => $this->can('create', new Post)),
+                    ->authorize(fn() => $this->can('create', new Post) && Gate::check(Period::Learning)),
 
                 SubjectResource\Actions\CreateAssignmentAction::make()
                     ->subject($this->ownerRecord)
-                    ->authorize(fn() => $this->can('create', new Post)),
+                    ->authorize(fn() => $this->can('create', new Post) && Gate::check(Period::Learning)),
             ]);
     }
 
