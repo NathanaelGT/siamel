@@ -41,6 +41,7 @@ class StudentResource extends Resource
 
                     Forms\Components\TextInput::make('account.email')
                         ->validationAttribute('Email mahasiswa')
+                        ->disabledOn('edit')
                         ->email()
                         ->required()
                         ->maxLength(255),
@@ -59,6 +60,7 @@ class StudentResource extends Resource
 
                     $livewire instanceof RelationManager ? null :
                         Forms\Components\Select::make('study_program_id')
+                            ->disabledOn('edit')
                             ->relationship('studyProgram', 'name')
                             ->searchable()
                             ->preload()
@@ -69,6 +71,7 @@ class StudentResource extends Resource
                         ->maxLength(255),
 
                     Forms\Components\TextInput::make('enrollment_type')
+                        ->disabledOn('edit')
                         ->required()
                         ->maxLength(255),
                 ])),
