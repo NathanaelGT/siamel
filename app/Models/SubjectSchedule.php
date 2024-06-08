@@ -34,11 +34,6 @@ class SubjectSchedule extends Model
         return $this->belongsTo(Subject::class);
     }
 
-    public function attendance(): HasMany
-    {
-        return dd('bang ganti bang');
-    }
-
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
