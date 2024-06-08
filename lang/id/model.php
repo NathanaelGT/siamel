@@ -78,6 +78,7 @@ return [
         'name'    => 'Dosen',
         'columns' => [
             'id'     => 'NIP',
+            'name'   => 'Dosen',
             'status' => 'Status',
         ],
     ],
@@ -114,6 +115,7 @@ return [
         'name'    => 'Staff',
         'columns' => [
             'id'     => 'NIP',
+            'name'   => 'Staff',
             'status' => 'Status',
         ],
     ],
@@ -122,6 +124,7 @@ return [
         'name'    => 'Mahasiswa',
         'columns' => [
             'id'              => 'NPM',
+            'name'            => 'Mahasiswa',
             'hometown'        => 'Kota asal',
             'enrollment_type' => 'Jalur masuk',
             'status'          => 'Status',
