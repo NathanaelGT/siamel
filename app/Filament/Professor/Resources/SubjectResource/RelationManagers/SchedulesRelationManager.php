@@ -4,10 +4,12 @@ namespace App\Filament\Professor\Resources\SubjectResource\RelationManagers;
 
 use App\Filament\Professor\Resources\SubjectResource;
 use App\Filament\RelationManager;
+use App\Filament\Student;
 use App\Models\SubjectSchedule;
 use App\Period\Period;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 
+/** @property-read \App\Models\Subject $ownerRecord */
 class SchedulesRelationManager extends RelationManager
 {
     protected static string $relationship = 'schedules';
@@ -81,6 +84,18 @@ class SchedulesRelationManager extends RelationManager
                             'start_time' => $data['start_time'],
                             'end_time'   => Carbon::create($data['start_time'])->addMinutes((int) $data['duration']),
                         ]);
+
+                        $this->ownerRecord->notifyStudents(
+                            Notification::make()
+                                ->title('Reschedule Jadwal Pertemuan')
+                                ->icon('heroicon-o-clock')
+                                ->info()
+                                ->body(
+                                    "Waktu pembelajaran ke-{$record->meeting_no} pada kelas {$this->ownerRecord->course->name} " .
+                                    "telah ganti menjadi {$record->start_time->translatedFormat('l, j F')} " .
+                                    "pukul {$record->start_time->format('H:i')} - {$record->end_time->format('H:i')}."
+                                )
+                        );
 
                         $action->success();
                     }),

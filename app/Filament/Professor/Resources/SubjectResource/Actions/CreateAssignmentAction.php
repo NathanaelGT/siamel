@@ -5,9 +5,12 @@ namespace App\Filament\Professor\Resources\SubjectResource\Actions;
 use App\Enums\AssignmentCategory;
 use App\Enums\AssignmentType;
 use App\Enums\PostType;
+use App\Filament\Student;
 use App\Models\Subject;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Support\Arr;
@@ -111,7 +114,7 @@ class CreateAssignmentAction extends Action
 
         $this->action(function (array $data, Form $form, HasTable $livewire) {
             $record = $this->subject->posts()->create(['type' => PostType::Assignment] + $data);
-            $record->assignment()->create(['mimes' => ''] + $data);
+            $assignment = $record->assignment()->create(['mimes' => ''] + $data);
 
             $ownerId = auth()->id();
 
@@ -122,6 +125,30 @@ class CreateAssignmentAction extends Action
                     'path'     => $storedPath,
                     'slug'     => $storedPath,
                 ])
+            );
+
+            $title = e($record->title);
+
+            $this->subject->notifyStudents(
+                Notification::make()
+                    ->title('Tugas baru')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->info()
+                    ->body(
+                        "Ada tugas baru dari kelas {$this->subject->course->name} dengan judul \"$title\"." .
+                        "<br>Tenggat: {$assignment->deadline->translatedFormat('l, j F Y \P\u\k\u\l H:i')}."
+                    )
+                    ->actions([
+                        Notifications\Actions\Action::make('view')
+                            ->button()
+                            ->label('Lihat')
+                            ->alpineClickHandler("markAsRead(); \$dispatch('close-modal', { id: 'database-notifications' })")
+                            ->url(Student\Resources\SubjectResource::getUrl(
+                                'post',
+                                [$this->subject, $record],
+                                panel: 'student'
+                            )),
+                    ])
             );
 
             $this->record($record);
