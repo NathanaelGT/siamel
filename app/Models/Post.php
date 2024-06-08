@@ -54,7 +54,7 @@ class Post extends Model
 
     public function submissions(): HasManyThrough
     {
-        if ($this->type !== PostType::Assignment) {
+        if ($this->exists && $this->type !== PostType::Assignment) {
             throw new InvalidPostTypeException(expect: PostType::Assignment, actual: $this->type);
         }
 
