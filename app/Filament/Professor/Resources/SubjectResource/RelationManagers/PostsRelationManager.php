@@ -52,7 +52,7 @@ class PostsRelationManager extends RelationManager
                     })
                     ->badge(function (SubjectSchedule $record) {
                         return $record->type === PostType::Assignment->value
-                            ? $record->count
+                            ? ($record->count ?: '-')
                             : null;
                     }),
             ])
