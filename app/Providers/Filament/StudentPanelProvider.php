@@ -25,6 +25,7 @@ class StudentPanelProvider extends PanelProvider
             ])
             ->widgets([
                 Widgets\ActiveAssignmentTable::class,
+                Widgets\TodaySubjectTable::class,
             ]);
     }
 }
