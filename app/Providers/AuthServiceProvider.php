@@ -6,6 +6,8 @@ use App\Enums\SemesterSchedules;
 use App\Models\Semester;
 use App\Models\User;
 use App\Period\Period;
+use Filament\Facades\Filament;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -15,7 +17,13 @@ class AuthServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->configureVerifyEmailUrl();
         $this->definePeriodGate();
+    }
+
+    protected function configureVerifyEmailUrl(): void
+    {
+        VerifyEmail::createUrlUsing(Filament::getVerifyEmailUrl(...));
     }
 
     protected function definePeriodGate(): void

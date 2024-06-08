@@ -2,13 +2,11 @@
 
 namespace App\Providers;
 
-use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Infolist;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Table;
-use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\ServiceProvider;
 
 class FilamentServiceProvider extends ServiceProvider
@@ -24,8 +22,6 @@ class FilamentServiceProvider extends ServiceProvider
         $this->registerAssets();
         $this->setStaticProperties();
         $this->configures();
-
-        VerifyEmail::createUrlUsing(Filament::getVerifyEmailUrl(...));
     }
 
     protected function bind(): void
