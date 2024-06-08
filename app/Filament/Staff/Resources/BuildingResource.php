@@ -31,6 +31,7 @@ class BuildingResource extends Resource
                     ->unique(ignoreRecord: true),
 
                 Forms\Components\Select::make('faculty_id')
+                    ->disabledOn('edit')
                     ->relationship('faculty', 'name'),
             ]);
     }
