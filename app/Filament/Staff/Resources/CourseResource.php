@@ -7,6 +7,7 @@ use App\Filament\Resource;
 use App\Filament\Staff\Resources\CourseResource\Pages;
 use App\Filament\Staff\Resources\CourseResource\RelationManagers;
 use App\Models\Course;
+use App\Models\Semester;
 use App\Models\StudyProgram;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -30,6 +31,7 @@ class CourseResource extends Resource
     public static function form(Form $form): Form
     {
         $creditInput = Forms\Components\TextInput::make('credits')
+            ->disabledOn('edit')
             ->required()
             ->integer()
             ->default(3)
@@ -48,6 +50,7 @@ class CourseResource extends Resource
                         ->relationship('studyProgram', 'name')
                         ->searchable()
                         ->preload()
+                        ->disabledOn('edit')
                         ->required(),
 
                 $livewire instanceof RelationManager ? $creditInput : null,
@@ -71,10 +74,9 @@ class CourseResource extends Resource
                     }),
 
                 Forms\Components\Select::make('semester_parity')
-                    ->required()
+                    ->disabledOn('edit')
                     ->options(CourseParity::class)
                     ->searchable()
-                    ->required()
                     ->reactive()
                     ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, ?string $state) {
                         $parity = CourseParity::tryFrom($state);
@@ -88,12 +90,14 @@ class CourseResource extends Resource
                         $invalid = match ($parity) {
                             CourseParity::Even => $semesterRequired % 2 === 1,
                             CourseParity::Odd  => $semesterRequired % 2 === 0,
+                            CourseParity::Null => false,
                         };
 
                         if ($invalid) {
                             $set('semester_required', null);
                         }
-                    }),
+                    })
+                    ->required(),
 
                 $livewire instanceof RelationManager ? null : $creditInput,
 
@@ -110,6 +114,9 @@ class CourseResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('subjects_count')
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('studyProgram.name')
                     ->hidden(fn(Component $livewire) => $livewire instanceof RelationManager)
@@ -129,31 +136,26 @@ class CourseResource extends Resource
 
                 Tables\Columns\TextColumn::make('is_elective')
                     ->badge()
-                    ->formatStateUsing(fn(bool $state) => $state ? 'Ya' : 'Tidak'),
+                    ->formatStateUsing(fn(bool $state) => $state ? 'Ya' : 'Bukan'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                //
             ]);
     }
 
     public static function getEloquentQuery(): Builder
     {
-        $facultyId = Auth::user()->info->faculty_id;
-
         return parent::getEloquentQuery()
-            ->when($facultyId !== null, function (Builder $query) use ($facultyId) {
+            ->withCount(['subjects' => function (Builder $query) {
+                $query->where('semester_id', Semester::current()->id);
+            }])
+            ->when(Auth::user()->info->faculty_id, function (Builder $query, int $facultyId) {
                 $query->whereIn(
                     'study_program_id',
                     StudyProgram::query()->where('faculty_id', $facultyId)->select('id')
@@ -164,7 +166,8 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\SubjectsRelationManager::class,
+            RelationManagers\ProfessorsRelationManager::class,
         ];
     }
 
