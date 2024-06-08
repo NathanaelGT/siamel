@@ -8,7 +8,6 @@ use App\Models\Subject;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
-use Illuminate\Database\Eloquent\Model;
 
 /** @property-read Subject $record */
 class ViewSubject extends ViewRecord
@@ -17,6 +16,8 @@ class ViewSubject extends ViewRecord
 
     public function infolist(Infolist $infolist): Infolist
     {
+        $this->record->loadCount('studentSubjects');
+
         return $infolist
             ->schema([
                 Infolists\Components\TextEntry::make('room.full_name'),
@@ -37,11 +38,6 @@ class ViewSubject extends ViewRecord
             RelationManagers\StudentsRelationManager::class,
             RelationManagers\GroupsRelationManager::class,
         ];
-    }
-
-    protected function resolveRecord(int | string $key): Model
-    {
-        return parent::resolveRecord($key)->loadCount('studentSubjects');
     }
 
     public function getTitle(): string
