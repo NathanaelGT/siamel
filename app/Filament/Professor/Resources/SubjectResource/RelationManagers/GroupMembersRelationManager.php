@@ -12,7 +12,6 @@ use Filament\Forms\Form;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /** @property-read \App\Models\SubjectGroup $ownerRecord */
@@ -69,11 +68,11 @@ class GroupMembersRelationManager extends RelationManager
                                 ->required()
                                 ->maxItems($maxItems),
                         ]))
-                    ->using(fn(array $data) => DB::transaction(function () use ($data) {
+                    ->using(function (array $data) {
                         $this->ownerRecord->members()->attach($data['students']);
 
                         return $this->ownerRecord;
-                    })),
+                    }),
             ])
             ->actions([
                 Tables\Actions\DeleteAction::make()

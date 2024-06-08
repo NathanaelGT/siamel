@@ -9,13 +9,13 @@ use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
+use Filament\Pages\Concerns\CanUseDatabaseTransactions;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Locked;
@@ -26,6 +26,7 @@ use Livewire\Attributes\Locked;
 class AcceptInvitation extends SimplePage
 {
     use InteractsWithFormActions;
+    use CanUseDatabaseTransactions;
 
     protected static string $view = 'livewire.pages.auth.accept-invitation';
 
@@ -70,7 +71,7 @@ class AcceptInvitation extends SimplePage
                 'email_verified_at' => now(),
             ]);
 
-        DB::transaction(function () use ($user, $data) {
+        $this->wrapInDatabaseTransaction(function () use ($user, $data) {
             $user->update($data);
 
             event(new Verified($user));

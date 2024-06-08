@@ -12,7 +12,6 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class CreateAssignmentAction extends Action
 {
@@ -111,26 +110,24 @@ class CreateAssignmentAction extends Action
         });
 
         $this->action(function (array $data, Form $form, HasTable $livewire) {
-            DB::transaction(function () use ($data, $form, $livewire) {
-                $record = $this->subject->posts()->create(['type' => PostType::Assignment] + $data);
-                $record->assignment()->create(['mimes' => ''] + $data);
+            $record = $this->subject->posts()->create(['type' => PostType::Assignment] + $data);
+            $record->assignment()->create(['mimes' => ''] + $data);
 
-                $ownerId = auth()->id();
+            $ownerId = auth()->id();
 
-                $record->attachments()->createMany(
-                    Arr::map($data['attachment_file_names'], fn(string $originalName, string $storedPath) => [
-                        'owner_id' => $ownerId,
-                        'name'     => $originalName,
-                        'path'     => $storedPath,
-                        'slug'     => $storedPath,
-                    ])
-                );
+            $record->attachments()->createMany(
+                Arr::map($data['attachment_file_names'], fn(string $originalName, string $storedPath) => [
+                    'owner_id' => $ownerId,
+                    'name'     => $originalName,
+                    'path'     => $storedPath,
+                    'slug'     => $storedPath,
+                ])
+            );
 
-                $this->record($record);
-                $form->model($record)->saveRelationships();
+            $this->record($record);
+            $form->model($record)->saveRelationships();
 
-                $livewire->mountedTableActionRecord($record->getKey());
-            });
+            $livewire->mountedTableActionRecord($record->getKey());
 
             $this->success();
         });

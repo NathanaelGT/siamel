@@ -16,7 +16,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -80,35 +79,33 @@ class GroupsRelationManager extends RelationManager
                                 ->default(true),
                         ]))
                     ->using(function (array $data, Tables\Actions\CreateAction $action) {
-                        return DB::transaction(function () use ($data, $action) {
-                            $studentIds = $this->ownerRecord->students()->pluck('id');
-                            $groupCount = ceil($studentIds->count() / $data['member_count']);
+                        $studentIds = $this->ownerRecord->students()->pluck('id');
+                        $groupCount = ceil($studentIds->count() / $data['member_count']);
 
-                            $this->ownerRecord->update([
-                                'student_can_manage_group' => $data['student_can_manage_group'],
-                                'group_max_members'        => $data['member_count'],
-                            ]);
+                        $this->ownerRecord->update([
+                            'student_can_manage_group' => $data['student_can_manage_group'],
+                            'group_max_members'        => $data['member_count'],
+                        ]);
 
-                            $groups = $this->ownerRecord->groups()->createMany(
-                                Collection::range(1, $groupCount)->map(fn($no) => [
-                                    'name' => "Kelompok $no",
-                                ])
-                            );
+                        $groups = $this->ownerRecord->groups()->createMany(
+                            Collection::range(1, $groupCount)->map(fn($no) => [
+                                'name' => "Kelompok $no",
+                            ])
+                        );
 
-                            if ($data['strategy'] !== 'empty') {
-                                $groupMemberChunks = (match ($data['strategy']) {
-                                    'random' => $studentIds->shuffle(),
-                                    'id'     => $studentIds,
-                                    default  => $action->halt(true),
-                                })->chunk($data['member_count']);
+                        if ($data['strategy'] !== 'empty') {
+                            $groupMemberChunks = (match ($data['strategy']) {
+                                'random' => $studentIds->shuffle(),
+                                'id'     => $studentIds,
+                                default  => $action->halt(true),
+                            })->chunk($data['member_count']);
 
-                                $groups->each(function (SubjectGroup $group, int $index) use ($groupMemberChunks) {
-                                    $group->members()->attach($groupMemberChunks[$index]);
-                                });
-                            }
+                            $groups->each(function (SubjectGroup $group, int $index) use ($groupMemberChunks) {
+                                $group->members()->attach($groupMemberChunks[$index]);
+                            });
+                        }
 
-                            return $groups->first();
-                        });
+                        return $groups->first();
                     }),
 
                 Tables\Actions\Action::make('setting')
@@ -130,29 +127,27 @@ class GroupsRelationManager extends RelationManager
                             ->label('Mahasiswa dapat membuat kelompok'),
                     ]))
                     ->action(function (array $data, Tables\Actions\Action $action) {
-                        return DB::transaction(function () use ($data, $action) {
-                            $maxMembers = $data['group_max_members'];
+                        $maxMembers = $data['group_max_members'];
 
-                            if ($maxMembers < $this->ownerRecord->group_max_members) {
-                                $this->ownerRecord
-                                    ->groups()
-                                    ->with('subjectGroupMembers')
-                                    ->get()
-                                    ->each(function (SubjectGroup $group) use ($maxMembers) {
-                                        if ($group->subjectGroupMembers->count() <= $maxMembers) {
-                                            return;
-                                        }
+                        if ($maxMembers < $this->ownerRecord->group_max_members) {
+                            $this->ownerRecord
+                                ->groups()
+                                ->with('subjectGroupMembers')
+                                ->get()
+                                ->each(function (SubjectGroup $group) use ($maxMembers) {
+                                    if ($group->subjectGroupMembers->count() <= $maxMembers) {
+                                        return;
+                                    }
 
-                                        $group->members()->detach(
-                                            $group->subjectGroupMembers->skip($maxMembers)->pluck('student_id')
-                                        );
-                                    });
-                            }
+                                    $group->members()->detach(
+                                        $group->subjectGroupMembers->skip($maxMembers)->pluck('student_id')
+                                    );
+                                });
+                        }
 
-                            $this->ownerRecord->update($data);
+                        $this->ownerRecord->update($data);
 
-                            $action->success();
-                        });
+                        $action->success();
                     }),
 
                 Tables\Actions\CreateAction::make()
@@ -185,7 +180,7 @@ class GroupsRelationManager extends RelationManager
                             ]);
                     })
                     ->successNotificationTitle('Kelompok berhasil dibuat')
-                    ->using(fn(array $data) => DB::transaction(function () use ($data) {
+                    ->using(function (array $data) {
                         $group = $this->ownerRecord->groups()->create([
                             'name' => str($data['name'])->lower()->startsWith('kelompok')
                                 ? $data['name']
@@ -197,7 +192,7 @@ class GroupsRelationManager extends RelationManager
                         }
 
                         return $group;
-                    })),
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()

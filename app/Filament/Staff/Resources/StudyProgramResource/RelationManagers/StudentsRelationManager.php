@@ -9,7 +9,6 @@ use App\Service\Auth\CreateAccount;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 
 class StudentsRelationManager extends RelationManager
 {
@@ -29,7 +28,7 @@ class StudentsRelationManager extends RelationManager
                     ->using(function (array $data) {
                         $data['study_program_id'] = $this->ownerRecord->id;
 
-                        return DB::transaction(fn() => CreateAccount::student($data));
+                        return CreateAccount::student($data);
                     }),
             ])
             ->actions([

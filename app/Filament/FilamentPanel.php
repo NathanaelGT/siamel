@@ -34,6 +34,7 @@ abstract class FilamentPanel
             ->discoverWidgets(in: app_path("Filament/$name/Widgets"), for: "App\\Filament\\$name\\Widgets")
             ->discoverClusters(in: app_path("Filament/$name/Clusters"), for: "App\\Filament\\$name\\Clusters")
             ->discoverResources(in: app_path("Filament/$name/Resources"), for: "App\\Filament\\$name\\Resources")
+            ->databaseTransactions()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

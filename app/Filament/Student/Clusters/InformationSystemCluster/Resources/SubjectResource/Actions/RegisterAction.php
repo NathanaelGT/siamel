@@ -7,7 +7,6 @@ use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class RegisterAction extends Action
@@ -37,7 +36,7 @@ class RegisterAction extends Action
 
         $this->icon('heroicon-m-plus');
 
-        $this->action(fn(Subject $record) => DB::transaction(function () use ($record) {
+        $this->action(function (Subject $record) {
             $lock = Cache::lock('register-student-subject:' . $record->id, 5);
 
             try {
@@ -66,6 +65,6 @@ class RegisterAction extends Action
             } finally {
                 $lock->release();
             }
-        }));
+        });
     }
 }

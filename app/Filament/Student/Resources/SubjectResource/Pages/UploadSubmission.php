@@ -14,7 +14,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\WithFileUploads;
 
@@ -28,6 +27,8 @@ class UploadSubmission extends EditRecord
 
     #[Locked]
     public Post | string $post;
+
+    protected ?bool $hasDatabaseTransactions = false;
 
     protected static string $resource = SubjectResource::class;
 
@@ -53,7 +54,7 @@ class UploadSubmission extends EditRecord
     /** @param  Submission  $record */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $result = DB::transaction(function () use ($record, $data) {
+        $result = $this->wrapInDatabaseTransaction(function () use ($record, $data) {
             $wasRecentlyUpdated = false;
 
             if ($record->exists) {
