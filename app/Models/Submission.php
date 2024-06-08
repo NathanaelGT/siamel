@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Str;
 
+/** @property-read \App\Models\Student|\App\Models\SubjectGroup $submissionable */
 #[ObservedBy(SubmissionObserver::class)]
 class Submission extends Model
 {
