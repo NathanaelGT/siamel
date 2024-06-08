@@ -3,11 +3,11 @@
 namespace App\Providers\Filament;
 
 use App\Filament\FilamentPanel;
+use App\Filament\Professor\Widgets;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 
 class ProfessorPanelProvider extends PanelProvider
 {
@@ -23,7 +23,7 @@ class ProfessorPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->widgets([
-                Widgets\AccountWidget::class,
+                Widgets\TodaySubjectTable::class,
             ]);
     }
 }
