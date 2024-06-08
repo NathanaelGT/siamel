@@ -38,7 +38,7 @@ class PostsRelationManager extends RelationManager
                 Tables\Grouping\Group::make('meeting_no')
                     ->titlePrefixedWithLabel(false)
                     ->getTitleFromRecordUsing(function (SubjectSchedule $record) {
-                        $date = $record->start_time->translatedFormat('l, j F Y');
+                        $date = $record->start_time->translatedFormat('l, j F Y \P\u\k\u\l H:i');
 
                         return "Pertemuan ke $record->meeting_no ($date)";
                     })
