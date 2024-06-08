@@ -7,15 +7,18 @@ use App\Filament\Resource;
 use App\Filament\Student\Clusters\InformationSystemCluster;
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\AttendanceResource\Pages;
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\AttendanceResource\RelationManagers;
+use App\Filament\Tables\Summarizer\LocalAverage;
 use App\Models\Attendance;
 use App\Models\Semester;
 use App\Models\StudentSubject;
 use App\Models\Subject;
 use App\Models\SubjectSchedule;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\HtmlString;
 use stdClass;
 
 class AttendanceResource extends Resource
@@ -47,7 +50,23 @@ class AttendanceResource extends Resource
 
                 Tables\Columns\TextColumn::make('attendance_rate')
                     ->label('Kehadiran')
-                    ->default(function (Subject $record) {
+                    ->summarize([
+                        $avgAttendance = LocalAverage::make()
+                            ->formatStateUsing(function (float $state) {
+                                $attendance = round($state);
+
+                                if ($attendance >= 80) {
+                                    return $attendance . '%';
+                                }
+
+                                $rgb = Color::Red[600];
+
+                                return new HtmlString(
+                                    "<span style=\"color:rgb($rgb)\">$attendance%</span>"
+                                );
+                            }),
+                    ])
+                    ->default(function (Subject $record) use ($avgAttendance) {
                         if (isset($record->attendance_rate)) {
                             return $record->attendance_rate;
                         }
@@ -59,7 +78,7 @@ class AttendanceResource extends Resource
                             ]);
                         });
 
-                        AttendanceResource\Summarizers\AttendanceSummarizer::$attendance += $attendance;
+                        $avgAttendance->increaseValue($attendance);
 
                         return $record->attendance_rate = (int) round($attendance);
                     })
@@ -70,10 +89,7 @@ class AttendanceResource extends Resource
                         }
 
                         return null;
-                    })
-                    ->summarize([
-                        AttendanceResource\Summarizers\AttendanceSummarizer::make(),
-                    ]),
+                    }),
             ]);
     }
 

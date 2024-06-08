@@ -4,6 +4,7 @@ namespace App\Filament\Student\Clusters\InformationSystemCluster\Resources\Subje
 
 use App\Enums\WorkingDay;
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\SubjectResource;
+use App\Filament\Tables\Summarizer\LocalSum;
 use App\Models\Semester;
 use App\Models\StudentSubject;
 use App\Models\Subject;
@@ -32,8 +33,9 @@ class SelectedSubjects extends ListRecords
 
                 Tables\Columns\TextColumn::make('course.credits')
                     ->summarize([
-                        SubjectResource\Summarizers\CreditSummarizer::make(),
-                    ]),
+                        $courseCreditSum = LocalSum::make(),
+                    ])
+                    ->formatStateUsing($courseCreditSum->increaseValue(...)),
 
                 Tables\Columns\TextColumn::make('day'),
 

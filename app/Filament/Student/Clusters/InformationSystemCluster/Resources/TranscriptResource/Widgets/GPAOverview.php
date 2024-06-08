@@ -3,8 +3,7 @@
 namespace App\Filament\Student\Clusters\InformationSystemCluster\Resources\TranscriptResource\Widgets;
 
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\TranscriptResource;
-use App\Filament\Student\Clusters\InformationSystemCluster\Resources\TranscriptResource\Summarizers\CreditSummarizer;
-use App\Filament\Student\Clusters\InformationSystemCluster\Resources\TranscriptResource\Summarizers\NxKSummarizer;
+use App\Filament\Tables\Summarizer\LocalSum;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -16,14 +15,17 @@ class GPAOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $ip = NxKSummarizer::$value === null || CreditSummarizer::$value === null
+        $totalNxk = LocalSum::instance('nxk')?->getTotalValue();
+        $totalCredits = LocalSum::instance('course.credits')?->getTotalValue();
+
+        $ip = ! $totalNxk || ! $totalCredits
             ? '-'
-            : number_format(NxKSummarizer::$value / CreditSummarizer::$value, 2);
+            : number_format($totalNxk / $totalCredits, 2);
 
         return [
             Stat::make('Indeks Prestasi', $ip),
 
-            Stat::make('SKS Kumulatif', CreditSummarizer::$value ?? '-'),
+            Stat::make('SKS Kumulatif', $totalCredits ?? '-'),
 
             Stat::make('Semester', TranscriptResource::$highestSemester ?: '-'),
         ];

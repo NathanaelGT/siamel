@@ -6,6 +6,7 @@ use App\Enums\Parity;
 use App\Filament\Resource;
 use App\Filament\Student\Clusters\InformationSystemCluster;
 use App\Filament\Student\Clusters\InformationSystemCluster\Resources\TranscriptResource\Pages;
+use App\Filament\Tables\Summarizer\LocalSum;
 use App\Models\Semester;
 use App\Models\Subject;
 use App\Service\Subject\Score;
@@ -63,8 +64,9 @@ class TranscriptResource extends Resource
 
                 Tables\Columns\TextColumn::make('course.credits')
                     ->summarize([
-                        TranscriptResource\Summarizers\CreditSummarizer::make(),
-                    ]),
+                        $courseCreditSum = LocalSum::make('course.credits'),
+                    ])
+                    ->formatStateUsing($courseCreditSum->increaseValue(...)),
 
                 Tables\Columns\TextColumn::make('score')
                     ->label('Nilai')
@@ -82,10 +84,12 @@ class TranscriptResource extends Resource
 
                 Tables\Columns\TextColumn::make('nxk')
                     ->label('NxK')
-                    ->default(fn(Subject $record) => $record->nxk = $record->credit * $record->course->credits / 100)
                     ->summarize([
-                        TranscriptResource\Summarizers\NxKSummarizer::make(),
-                    ]),
+                        $nxkSum = LocalSum::make('nxk'),
+                    ])
+                    ->default(fn(Subject $record) => $record->nxk = $nxkSum->increaseValue(
+                        $record->credit * $record->course->credits / 100
+                    )),
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $query
