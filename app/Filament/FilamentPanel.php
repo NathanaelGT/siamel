@@ -36,6 +36,7 @@ abstract class FilamentPanel
             ->discoverResources(in: app_path("Filament/$name/Resources"), for: "App\\Filament\\$name\\Resources")
             ->unsavedChangesAlerts()
             ->databaseTransactions()
+            ->databaseNotifications()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\PostType;
 use App\Enums\WorkingDay;
+use App\Notifications\SyncDatabaseNotification;
 use Carbon\CarbonPeriod;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,6 +49,20 @@ class Subject extends Model
             'student_can_manage_group' => 'bool',
             'student_can_create_group' => 'bool',
         ];
+    }
+
+    public function notifyStudents(Notification $notification): void
+    {
+        $users = (new User)->hydrate(
+            $this->students()
+                ->pluck('user_id')
+                ->map(fn($id) => ['id' => $id])
+                ->all()
+        );
+
+        $users->each->notify(
+            new SyncDatabaseNotification($notification->getDatabaseMessage())
+        );
     }
 
     public function getRouteKeyName(): string
