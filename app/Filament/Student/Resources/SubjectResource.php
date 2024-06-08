@@ -60,7 +60,7 @@ class SubjectResource extends Resource
                 Tables\Columns\TextColumn::make('capacity')
                     ->numeric()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('day')
                     ->sortable()
@@ -79,7 +79,14 @@ class SubjectResource extends Resource
                     ->sortable(query: function (Builder $query, string $direction = 'asc') {
                         $query->orderBy('semester_id', $direction);
                     })
-//                    ->hidden(fn() => $table->getFilter('semester_id')->getState()['values'] === $defaultSemester)
+                    ->hidden(function () use ($table, $defaultSemester) {
+                        $semesterFilterState = $table->getFilter('semester_id')->getState();
+
+                        if (isset($semesterFilterState['value'])) {
+                            return $semesterFilterState['value'] === $defaultSemester;
+                        }
+                        return false;
+                    })
                     ->toggleable(),
             ])
             ->filters([
