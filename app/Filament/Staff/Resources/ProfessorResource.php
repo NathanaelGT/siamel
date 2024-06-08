@@ -42,11 +42,13 @@ class ProfessorResource extends Resource
                 ->required(),
 
             Forms\Components\Select::make('faculty_id')
+                ->disabledOn('edit')
                 ->relationship('faculty', 'name')
                 ->searchable()
                 ->preload(),
 
             Forms\Components\TextInput::make('id')
+                ->disabledOn('edit')
                 ->unique()
                 ->required()
                 ->integer()
@@ -56,6 +58,7 @@ class ProfessorResource extends Resource
                 ]),
 
             Forms\Components\TextInput::make('account.email')
+                ->disabledOn('edit')
                 ->email()
                 ->required()
                 ->maxLength(255),
@@ -150,9 +153,6 @@ class ProfessorResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                //
             ]);
     }
 

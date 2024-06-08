@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
+/** @property-read \App\Models\Professor $ownerRecord */
 class CoursesRelationManager extends RelationManager
 {
     protected static ?string $title = 'Bidang Keahlian';
@@ -24,6 +25,8 @@ class CoursesRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
+
+                Tables\Columns\TextColumn::make('studyProgram.name'),
             ])
             ->filters([
                 //
@@ -44,6 +47,9 @@ class CoursesRelationManager extends RelationManager
                                 ->where('faculty_id', $this->ownerRecord->faculty_id)
                                 ->select('id')
                         );
+                    })
+                    ->recordTitle(function (Course $record) {
+                        return $record->name . ' (' . $record->studyProgram->name . ')';
                     }),
             ])
             ->actions([
