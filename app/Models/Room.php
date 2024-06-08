@@ -13,6 +13,11 @@ class Room extends Model
 
     public $timestamps = false;
 
+    protected $fillable = [
+        'name',
+        'capacity',
+    ];
+
     public function building(): BelongsTo
     {
         return $this->belongsTo(Building::class);
