@@ -37,12 +37,18 @@ class TranscriptsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('course.name')
+            ->emptyStateHeading('Transkrip belum terbit')
             ->description(function () use ($table) {
+                $records = $table->getRecords();
+                if ($records->isEmpty()) {
+                    return null;
+                }
+
                 $credits = 0;
                 $nxk = 0;
                 $highestSemester = 0;
 
-                $table->getRecords()->each(function (Subject $record) use (&$credits, &$nxk, &$highestSemester) {
+                $records->each(function (Subject $record) use (&$credits, &$nxk, &$highestSemester) {
                     $credits += $record->course->credits;
 
                     $record->score = Score::scoreToWeight(
