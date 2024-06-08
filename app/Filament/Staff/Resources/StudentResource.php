@@ -113,6 +113,7 @@ class StudentResource extends Resource
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('id')
+                    ->searchable()
                     ->sortable()
                     ->toggleable(),
 
@@ -134,6 +135,7 @@ class StudentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('study_program_id')
+                    ->hidden(fn(Component $livewire) => $livewire instanceof RelationManager)
                     ->options(function () {
                         $facultyId = Auth::user()->info->faculty_id;
 
@@ -185,7 +187,9 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ScheduleRelationManager::class,
+            RelationManagers\AttendancesRelationManager::class,
+            RelationManagers\TranscriptsRelationManager::class,
         ];
     }
 

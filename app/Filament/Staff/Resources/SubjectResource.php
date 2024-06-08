@@ -8,10 +8,11 @@ use App\Filament\Staff\Resources\SubjectResource\Pages;
 use App\Filament\Staff\Resources\SubjectResource\RelationManagers;
 use App\Models\Professor;
 use App\Models\Subject;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class SubjectResource extends Resource
 {
@@ -27,67 +28,71 @@ class SubjectResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('course.name')
+                Tables\Columns\TextColumn::make('title')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable('course.name'),
+
+                Tables\Columns\TextColumn::make('course.studyProgram.name')
+                    ->hidden(fn(Component $livewire) => $livewire instanceof RelationManager)
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('course.studyProgram.faculty.name')
+                    ->hidden(function (Component $livewire) {
+                        if ($livewire instanceof RelationManager) {
+                            return true;
+                        }
+
+                        return auth()->user()->info->faculty_id !== null;
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('professor.account.name')
                     ->label('Dosen')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('room.name')
-                    ->formatStateUsing(fn(Subject $record) => $record->room->full_name)
+                Tables\Columns\TextColumn::make('room.full_name')
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('capacity')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('students_count')
+                    ->hidden(fn(Component $livewire) => $livewire instanceof RelationManager)
+                    ->label('Kapasitas')
+                    ->formatStateUsing(function (Subject $record) {
+                        return "$record->students_count/$record->capacity";
+                    })
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('parallel')
-                    ->formatStateUsing(fn(Subject $record) => implode([
-                        $record->parallel,
-                        $record->code,
-                    ])),
 
                 Tables\Columns\TextColumn::make('day')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('start_time')
-                    ->label('Jam')
-                    ->formatStateUsing(fn(Subject $record) => implode(' - ', [
-                        $record->start_time->format('H:i'),
-                        $record->end_time->format('H:i'),
-                    ])),
-            ])
-            ->filters([
-                //
+                Tables\Columns\TextColumn::make('time'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                //
-            ]);
+            ->modifyQueryUsing(function (Component $livewire, Builder $query) {
+                if ($livewire instanceof RelationManager) {
+                    return;
+                }
+
+                $query->withCount('students');
+            });
     }
 
     public static function getEloquentQuery(): Builder
     {
-        $professorIds = once(function () {
-            $facultyId = Auth::user()->info->faculty_id;
-
-            return Professor::query()
-                ->where('status', EmployeeStatus::Active)
-                ->when($facultyId !== null)->where('faculty_id', $facultyId)
-                ->pluck('id')
-                ->all();
-        });
-
         return Subject::query()
             ->with(['room.building'])
-            ->whereIn('professor_id', $professorIds);
+            ->when(auth()->user()->info->faculty_id, function (Builder $query, int $facultyId) {
+                $query->whereIn('professor_id', once(fn() => Professor::query()
+                    ->where('status', EmployeeStatus::Active)
+                    ->where('faculty_id', $facultyId)
+                    ->pluck('id')
+                    ->all()));
+            });
     }
 
     public static function getRelations(): array
