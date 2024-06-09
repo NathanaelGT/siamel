@@ -7,10 +7,9 @@ use App\Filament\Resource;
 use App\Filament\Staff\Resources\SemesterResource\Pages;
 use App\Filament\Staff\Resources\SemesterResource\RelationManagers;
 use App\Models\Semester;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SemesterResource extends Resource
 {
@@ -20,20 +19,6 @@ class SemesterResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('parity')
-                    ->options(Parity::class)
-                    ->searchable()
-                    ->required(),
-
-                Forms\Components\TextInput::make('year')
-                    ->required(),
-            ]);
-    }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -41,16 +26,10 @@ class SemesterResource extends Resource
             ->defaultSort('academic_year', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('academic_year')
-                    ->sortable(),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                //
-            ])
-            ->bulkActions([
-                //
+                    ->sortable(query: function (Builder $query, string $direction) {
+                        $query->orderBy('year', $direction)
+                            ->orderByRaw("field(`parity`, ?, ?) $direction", Parity::cases());
+                    }),
             ]);
     }
 
@@ -61,19 +40,10 @@ class SemesterResource extends Resource
         ];
     }
 
-    public static function getWidgets(): array
-    {
-        return [
-            SemesterResource\Widgets\CalendarWidget::class,
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListSemesters::route('/'),
-            'create' => Pages\CreateSemester::route('/create'),
-            'edit'   => Pages\EditSemester::route('/{record}/edit'),
+            'index' => Pages\ListSemesters::route('/'),
         ];
     }
 }

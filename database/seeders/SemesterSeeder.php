@@ -14,7 +14,7 @@ class SemesterSeeder extends Seeder
         $start = 2019;
         $end = now()->year;
 
-        $parities = array_reverse(Parity::cases());
+        $parities = Parity::cases();
 
         $semesters = [];
 
