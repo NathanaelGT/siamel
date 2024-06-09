@@ -18,8 +18,10 @@ abstract class FacultyDataset
      */
     public static function get(): Collection
     {
+        $fullsize = (bool) env('SEEDER_FULLSIZE');
+
         return once(fn() => collect([
-            new FacultyData(1, 'Fakultas Ekonomi & Bisnis', [
+            $fullsize ? null : new FacultyData(1, 'Fakultas Ekonomi & Bisnis', [
                 new StudyProgramData(1, 'Ekonomi Pembangunan', EducationLevel::S1, [
                     new CourseData('Ekonomi Pembangunan Mikro', 2),
                     new CourseData('Teori Ekonomi Pembangunan', 2),
@@ -198,17 +200,21 @@ abstract class FacultyDataset
                 ]),
             ], [
                 new BuildingData('Fakultas Ekonomi Bisnis 1', RoomData::mass([
-                    new RoomsData(1, 4),
+                    new RoomsData(1, 2),
                     new RoomsData(2, 4),
+                    new RoomsData(3, 4),
+                    new RoomsData(4, 4),
                 ])),
                 new BuildingData('Fakultas Ekonomi Bisnis 2', RoomData::mass([
-                    new RoomsData(1, 5),
+                    new RoomsData(1, 3),
                     new RoomsData(2, 5),
                     new RoomsData(3, 5),
+                    new RoomsData(4, 5),
+                    new RoomsData(5, 5),
                 ])),
             ]),
 
-            new FacultyData(2, 'Fakultas Pertanian', [
+            $fullsize ? null : new FacultyData(2, 'Fakultas Pertanian', [
                 new StudyProgramData(1, 'Agribisnis', EducationLevel::S1, [
                     new CourseData('Pengantar Agribisnis', 1),
                     new CourseData('Dasar-Dasar Pertanian', 1, 3),
@@ -290,12 +296,19 @@ abstract class FacultyDataset
                 ]),
             ], [
                 new BuildingData('Fakultas Pertanian 1', RoomData::mass([
-                    new RoomsData(1, 5),
+                    new RoomsData(1, 3),
                     new RoomsData(2, 5),
+                    new RoomsData(3, 5),
+                ])),
+
+                new BuildingData('Fakultas Pertanian 2', RoomData::mass([
+                    new RoomsData(1, 3),
+                    new RoomsData(2, 5),
+                    new RoomsData(3, 5),
                 ])),
             ]),
 
-            new FacultyData(3, 'Fakultas Teknik', [
+            $fullsize ? null : new FacultyData(3, 'Fakultas Teknik', [
                 new StudyProgramData(1, 'Teknik Kimia', EducationLevel::S1, [
                     new CourseData('Pengantar Teknik Kimia', 1),
                     new CourseData('Kimia Dasar', 1),
@@ -561,7 +574,15 @@ abstract class FacultyDataset
                 ]),
             ], [
                 new BuildingData('Fakultas Teknik 1', RoomData::mass([
-                    new RoomsData(1, 6),
+                    new RoomsData(1, 4),
+                    new RoomsData(2, 5),
+                    new RoomsData(3, 6),
+                    new RoomsData(4, 6),
+                    new RoomsData(5, 6),
+                ])),
+
+                new BuildingData('Fakultas Teknik 2', RoomData::mass([
+                    new RoomsData(1, 4),
                     new RoomsData(2, 6),
                     new RoomsData(3, 6),
                     new RoomsData(4, 6),
@@ -569,7 +590,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            new FacultyData(4, 'Fakultas Ilmu Sosial & Politik', [
+            $fullsize ? null : new FacultyData(4, 'Fakultas Ilmu Sosial & Politik', [
                 new StudyProgramData(1, 'Administrasi Negara', EducationLevel::S1, [
                     new CourseData('Pengantar Administrasi Negara', 1),
                     new CourseData('Teori Administrasi Negara', 1),
@@ -771,16 +792,19 @@ abstract class FacultyDataset
             ], [
                 new BuildingData('Fakultas Ilmu Sosial Ilmu Politik 1', RoomData::mass([
                     new RoomsData(1, 4),
-                    new RoomsData(2, 4),
-                    new RoomsData(3, 4),
+                    new RoomsData(2, 6),
+                    new RoomsData(3, 6),
+                    new RoomsData(4, 4),
                 ])),
                 new BuildingData('Fakultas Ilmu Sosial Ilmu Politik 2', RoomData::mass([
-                    new RoomsData(1, 5),
+                    new RoomsData(1, 4),
                     new RoomsData(2, 5),
+                    new RoomsData(3, 5),
+                    new RoomsData(4, 5),
                 ])),
             ]),
 
-            new FacultyData(5, 'Fakultas Arsitektur & Desain', [
+            $fullsize ? null : new FacultyData(5, 'Fakultas Arsitektur & Desain', [
                 new StudyProgramData(1, 'Arsitektur', EducationLevel::S1, [
                     new CourseData('Sejarah Arsitektur', 1),
                     new CourseData('Teori Arsitektur', 1),
@@ -911,23 +935,27 @@ abstract class FacultyDataset
 
             new FacultyData(8, 'Fakultas Ilmu Komputer', [
                 new StudyProgramData(1, 'Informatika', EducationLevel::S1, [
-                    new CourseData('Pengantar Informatika', 1),
-                    new CourseData('Pemrograman Dasar', 1),
-                    new CourseData('Matematika Dasar', 1),
-                    new CourseData('Fisika Dasar', 1),
-                    new CourseData('Pengantar Algoritma dan Struktur Data', 2),
-                    new CourseData('Arsitektur Komputer', 2),
-                    new CourseData('Logika Informatika', 2),
-                    new CourseData('Sistem Operasi', 2),
-                    new CourseData('Pemrograman Lanjutan', 3),
-                    new CourseData('Struktur Data Lanjutan', 3),
-                    new CourseData('Jaringan Komputer', 3),
-                    new CourseData('Basis Data', 3),
-                    new CourseData('Probabilitas dan Statistik', 4),
-                    new CourseData('Pengembangan Aplikasi Web', 4),
-                    new CourseData('Interaksi Manusia dan Komputer', 4),
-                    new CourseData('Manajemen Proyek Perangkat Lunak', 4),
-                    new CourseData('Rekayasa Perangkat Lunak', 5),
+                    new CourseData('Arsitektur Komputer', 1),
+                    new CourseData('Matematika Komputasi', 1),
+                    new CourseData('Etika dan Kompetensi Informatika', 1),
+                    new CourseData('Sistem Digital', 2),
+                    new CourseData('Algoritma dan Pemrograman', 2),
+                    new CourseData('Matematika Diskrit', 2),
+                    new CourseData('Basis Data', 2),
+                    new CourseData('Aljabar Linier dan Matrik', 2),
+                    new CourseData('Sistem Operasi', 3),
+                    new CourseData('Pemrograman Lanjut', 3),
+                    new CourseData('Statistik Komputasi', 3),
+                    new CourseData('Struktur Data', 3),
+                    new CourseData('Basis Data Lanjut', 3),
+                    new CourseData('Metode Numerik', 3),
+                    new CourseData('Jaringan Komputer', 4),
+                    new CourseData('Pemrograman Web', 4),
+                    new CourseData('Kecerdasan Buatan', 4),
+                    new CourseData('Pemrograman Berorientasi Objek', 4),
+                    new CourseData('Desain Antarmuka', 4),
+                    new CourseData('Rekayasa Perangkat Lunak', 4),
+                    new CourseData('Analisis dan Desain Sistem', 4),
                     new CourseData('Keamanan Informasi', 5),
                     new CourseData('Data Mining', 5),
                     new CourseData('Sistem Cerdas', 5),
@@ -935,19 +963,17 @@ abstract class FacultyDataset
                     new CourseData('Analisis Big Data', 6),
                     new CourseData('Pemrograman Berbasis Kerangka Kerja', 6),
                     new CourseData('Pengembangan Perangkat Lunak Terdistribusi', 6),
-                    new CourseData('Pemrosesan Bahasa Alami', 7),
-                    new CourseData('Analisis Keamanan Jaringan', 7),
-                    new CourseData('Pengolahan Citra', 7),
-                    new CourseData('Rekayasa Kebutuhan Perangkat Lunak', 7),
+                    new CourseData('Riset Informatika', 7),
+                    new CourseData('Manajemen Proyek', 7),
+                    new CourseData('Pengenalan Pola', 7),
+                    new CourseData('Pengolahan Citra Digital', 7),
+                    new CourseData('Audit IT', 7),
                     new CourseData('Pengembangan Aplikasi Mobile', 8),
                     new CourseData('Pemodelan Simulasi', 8),
                     new CourseData('Kriptografi', 8),
-                    new CourseData('Kecerdasan Buatan', 8),
                     new CourseData('Analisis dan Desain Algoritma', 8),
                     new CourseData('Pemrograman Kompetitif', 8),
                     new CourseData('Manajemen Proses Bisnis Digital', 8),
-                    new CourseData('Pengembangan Game', 8),
-                    new CourseData('Pemrograman Paralel dan Terdistribusi', 8),
                 ]),
 
                 new StudyProgramData(2, 'Sistem Informasi', EducationLevel::S1, [
@@ -1060,7 +1086,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            new FacultyData(9, 'Fakultas Kedokteran', [
+            $fullsize ? null : new FacultyData(9, 'Fakultas Kedokteran', [
                 new StudyProgramData(1, 'Pendidikan Dokter', EducationLevel::S1, [
                     new CourseData('Biologi Sel dan Genetika', 1),
                     new CourseData('Anatomi Manusia', 1),
@@ -1123,6 +1149,6 @@ abstract class FacultyDataset
                     new RoomsData(3, 5),
                 ])),
             ]),
-        ]));
+        ])->filter());
     }
 }

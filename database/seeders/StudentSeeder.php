@@ -15,12 +15,16 @@ class StudentSeeder extends Seeder
 {
     public function setupRun(): void
     {
+        $fullsize = (bool) env('SEEDER_FULLSIZE');
+
         $lastUserId = User::query()->count();
 
         foreach (Semester::query()->distinct()->pluck('year') as $year) {
             foreach (FacultyDataset::get()->shuffle() as $faculty) {
-                $userCounts = $faculty->studyPrograms->map(function () {
-                    return $this->faker->numberBetween(100, 200);
+                $userCounts = $faculty->studyPrograms->map(function () use ($fullsize) {
+                    return $fullsize
+                        ? $this->faker->numberBetween(150, 400)
+                        : $this->faker->numberBetween(100, 200);
                 });
                 $userCount = $userCounts->sum();
 
