@@ -103,7 +103,7 @@ class FilamentLabelServiceProvider extends ServiceProvider
 
         static::$cache = [];
 
-        if (static::$fs->exists($labelCachePath)) {
+        if ($cacheExists = static::$fs->exists($labelCachePath)) {
             if (app()->isProduction()) {
                 $langLastModified = 0;
                 $cacheLastModified = 1;
@@ -134,13 +134,17 @@ class FilamentLabelServiceProvider extends ServiceProvider
             }
         }
 
-        app()->terminating(function () use ($labelCachePath) {
+        app()->terminating(function () use ($labelCachePath, $cacheExists) {
             if (! static::$shouldSaveCache) {
                 return;
             }
 
             $labels = var_export(static::$cache, true);
-            static::$fs->replace($labelCachePath, "<?php return $labels;");
+            if (! $cacheExists && ! static::$fs->isDirectory($dir = dirname($labelCachePath))) {
+                static::$fs->makeDirectory($dir);
+            }
+
+            static::$fs->put($labelCachePath, "<?php return $labels;");
         });
     }
 
