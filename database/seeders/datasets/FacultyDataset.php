@@ -21,7 +21,7 @@ abstract class FacultyDataset
         $fullsize = (bool) env('SEEDER_FULLSIZE');
 
         return once(fn() => collect([
-            $fullsize ? null : new FacultyData(1, 'Fakultas Ekonomi & Bisnis', [
+            ! $fullsize ? null : new FacultyData(1, 'Fakultas Ekonomi & Bisnis', [
                 new StudyProgramData(1, 'Ekonomi Pembangunan', EducationLevel::S1, [
                     new CourseData('Ekonomi Pembangunan Mikro', 2),
                     new CourseData('Teori Ekonomi Pembangunan', 2),
@@ -214,7 +214,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            $fullsize ? null : new FacultyData(2, 'Fakultas Pertanian', [
+            ! $fullsize ? null : new FacultyData(2, 'Fakultas Pertanian', [
                 new StudyProgramData(1, 'Agribisnis', EducationLevel::S1, [
                     new CourseData('Pengantar Agribisnis', 1),
                     new CourseData('Dasar-Dasar Pertanian', 1, 3),
@@ -308,7 +308,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            $fullsize ? null : new FacultyData(3, 'Fakultas Teknik', [
+            ! $fullsize ? null : new FacultyData(3, 'Fakultas Teknik', [
                 new StudyProgramData(1, 'Teknik Kimia', EducationLevel::S1, [
                     new CourseData('Pengantar Teknik Kimia', 1),
                     new CourseData('Kimia Dasar', 1),
@@ -590,7 +590,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            $fullsize ? null : new FacultyData(4, 'Fakultas Ilmu Sosial & Politik', [
+            ! $fullsize ? null : new FacultyData(4, 'Fakultas Ilmu Sosial & Politik', [
                 new StudyProgramData(1, 'Administrasi Negara', EducationLevel::S1, [
                     new CourseData('Pengantar Administrasi Negara', 1),
                     new CourseData('Teori Administrasi Negara', 1),
@@ -804,7 +804,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            $fullsize ? null : new FacultyData(5, 'Fakultas Arsitektur & Desain', [
+            ! $fullsize ? null : new FacultyData(5, 'Fakultas Arsitektur & Desain', [
                 new StudyProgramData(1, 'Arsitektur', EducationLevel::S1, [
                     new CourseData('Sejarah Arsitektur', 1),
                     new CourseData('Teori Arsitektur', 1),
@@ -1086,7 +1086,7 @@ abstract class FacultyDataset
                 ])),
             ]),
 
-            $fullsize ? null : new FacultyData(9, 'Fakultas Kedokteran', [
+            ! $fullsize ? null : new FacultyData(9, 'Fakultas Kedokteran', [
                 new StudyProgramData(1, 'Pendidikan Dokter', EducationLevel::S1, [
                     new CourseData('Biologi Sel dan Genetika', 1),
                     new CourseData('Anatomi Manusia', 1),
