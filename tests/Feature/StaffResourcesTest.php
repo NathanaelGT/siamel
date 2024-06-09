@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\Parity;
+use App\Models\Semester;
 use App\Models\Staff;
 use Filament\Facades\Filament;
 use Illuminate\Support\Arr;
@@ -7,8 +9,20 @@ use function Pest\Laravel\actingAs;
 
 $panel = filament()->getPanel('staff');
 
-beforeEach(function () use ($panel) {
+$now = now();
+
+$currentSemesterData = [
+    'year'   => $now->year,
+    'parity' => match ($now->month) {
+        8, 9, 10, 11, 12, 1 => Parity::Odd,
+        2, 3, 4, 5, 6, 7    => Parity::Even,
+    },
+];
+
+beforeEach(function () use ($panel, $currentSemesterData) {
     Filament::setCurrentPanel($panel);
+
+    Semester::factory()->createOne($currentSemesterData);
 
     actingAs(Staff::factory()->admin()->createOne()->account);
 });
