@@ -4,49 +4,35 @@ namespace Database\Seeders;
 
 use App\Enums\Role;
 use App\Enums\StudentStatus;
-use App\Jobs\Seeder\StudentSeederJob;
 use App\Models\Semester;
 use App\Models\Student;
 use App\Models\User;
 use Database\Seeders\Data\FacultyData;
 use Database\Seeders\Datasets\FacultyDataset;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
 class StudentSeeder extends Seeder
 {
-    public function run(
-        ?FacultyData $faculty = null,
-        ?int $year = null,
-        array $userIds = null,
-        array $userCounts = null
-    ): void
+    public function setupRun(): void
     {
-        if ($faculty === null) {
-            $lastUserId = User::query()->count();
+        $lastUserId = User::query()->count();
 
-            Semester::query()
-                ->distinct()
-                ->pluck('year')
-                ->each(function (string $year) use (&$lastUserId) {
-                    foreach (FacultyDataset::get()->shuffle() as $faculty) {
-                        $userCounts = $faculty->studyPrograms->map(function () {
-                            return $this->faker->numberBetween(150, 400);
-                        });
-                        $userCount = $userCounts->sum();
-
-                        $userIds = range($start = $lastUserId + 1, $lastUserId = $start + $userCount);
-
-                        StudentSeederJob::dispatch($faculty, (int) $year, $userIds, $userCounts->all());
-                    }
+        foreach (Semester::query()->distinct()->pluck('year') as $year) {
+            foreach (FacultyDataset::get()->shuffle() as $faculty) {
+                $userCounts = $faculty->studyPrograms->map(function () {
+                    return $this->faker->numberBetween(100, 200);
                 });
+                $userCount = $userCounts->sum();
 
-            Artisan::call('queue:work --stop-when-empty');
+                $userIds = range($start = $lastUserId + 1, $lastUserId = $start + $userCount);
 
-            return;
+                $this->dispatcher->run($faculty, (int) $year, $userIds, $userCounts->all());
+            }
         }
+    }
 
+    public function run(FacultyData $faculty, int $year, array $userIds, array $userCounts): void
+    {
         $currentYear = now()->year;
 
         $pad = function (int $num, int $length = 2): string {
@@ -54,17 +40,16 @@ class StudentSeeder extends Seeder
         };
 
         $recentStudentStatuses = [
-            ...array_fill(0, 17, StudentStatus::Active->value), // 85%
-            StudentStatus::Leave->value, // 10%
-            StudentStatus::Leave->value,
-            StudentStatus::DropOut->value, // 5%
+            ...array_fill(0, 38, StudentStatus::Active->value), // 95%
+            StudentStatus::Leave->value, // 2.5%
+            StudentStatus::DropOut->value, // 2.5%
         ];
 
         $oldStudentStatuses = [
-            ...array_fill(0, 14, StudentStatus::Graduated->value), // 70%
-            ...array_fill(0, 4, StudentStatus::Active->value), // 20%
-            StudentStatus::Leave->value, // 5%
-            StudentStatus::DropOut->value, // 5%
+            ...array_fill(0, 29, StudentStatus::Graduated->value), // 72.5%
+            ...array_fill(0, 9, StudentStatus::Active->value), // 22.5%
+            StudentStatus::Leave->value, // 2.5%
+            StudentStatus::DropOut->value, // 2.5%
         ];
 
         $ancientStudentStatuses = [
@@ -102,20 +87,6 @@ class StudentSeeder extends Seeder
                 $user['created_at'] = $now;
                 $user['updated_at'] = $now;
                 $user['name'] = $user['name']($user);
-                $user['email'] = (string) str(
-                    str($user['name'])
-                        ->explode(' ')
-                        ->when($this->faker->boolean(35))->shuffle()
-                        ->push($user['id'])
-                        ->when($this->faker->boolean(65), function (Collection $email) {
-                            $email->push($this->faker->year());
-                        })
-                        ->join(' ')
-                )
-                    ->snake($this->faker->randomElement(['_', '-', '.', '']))
-                    ->append('@' . $this->faker->freeEmailDomain());
-
-                $users[] = $user;
 
                 $student = $studentFactory->definition();
                 $student['user_id'] = $userIds[$idx];
@@ -135,6 +106,9 @@ class StudentSeeder extends Seeder
                     default                  => StudentStatus::Graduated->value,
                 };
 
+                $user['email'] = $student['id'] . '@student.siamel.test';
+
+                $users[] = $user;
                 $students[] = $student;
             }
         }

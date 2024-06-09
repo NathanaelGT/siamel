@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\Professor;
 use Database\Seeders\Datasets\FacultyDataset;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class ProfessorSeeder extends Seeder
 {
@@ -21,13 +22,13 @@ class ProfessorSeeder extends Seeder
 
             $professorCount[$faculty->id] = $this->faker->numberBetween(
                 $studyProgramCount * 6,
-                $studyProgramCount * 11
+                $studyProgramCount * 12
             );
         }
 
         $professorCount['null'] = $this->faker->numberBetween(
             $totalStudyProgramCount * 6,
-            $totalStudyProgramCount * 11
+            $totalStudyProgramCount * 12
         );
 
         $users = $this->generateUsers(collect($professorCount)->sum(), Role::Professor);
@@ -46,15 +47,19 @@ class ProfessorSeeder extends Seeder
 
         $professors = [];
         $professorFactory = Professor::factory();
-        foreach ($users as $user) {
+        foreach ($users as &$user) {
             $definition = $professorFactory->definition();
+            $definition['id'] = $definition['id']();
             $definition['user_id'] = $user['id'];
             $definition['faculty_id'] = $facultyId();
             $definition['status'] = $definition['status']->value;
 
+            $user['email'] = $definition['id'] . '@siamel.test';
+
             $professors[] = $definition;
         }
 
-        Professor::query()->insert($professors);
+        DB::table('users')->insert($users);
+        DB::table('professors')->insert($professors);
     }
 }

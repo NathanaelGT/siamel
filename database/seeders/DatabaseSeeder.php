@@ -2,16 +2,33 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Role;
-use App\Models\Professor;
-use App\Models\Staff;
-use App\Models\Student;
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        ini_set('memory_limit', '2048M');
+
+        if (false) {
+            DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+
+            DB::table('failed_jobs')->truncate();
+            DB::table('jobs')->truncate();
+//            DB::table('attendances')->truncate();
+            DB::table('attachments')->truncate();
+            DB::table('submissions')->truncate();
+//            DB::table('assignments')->truncate();
+//            DB::table('subject_group_members')->truncate();
+//            DB::table('subject_groups')->truncate();
+//            DB::table('posts')->truncate();
+//            DB::table('subject_schedules')->truncate();
+//            DB::table('student_subject')->truncate();
+//            DB::table('subjects')->truncate();
+
+            DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+        }
+
         $this->call([
             SemesterSeeder::class,
             FacultySeeder::class,
@@ -19,59 +36,17 @@ class DatabaseSeeder extends Seeder
             StaffSeeder::class,
             ProfessorSeeder::class,
             CourseProfessorSeeder::class,
-            SubjectSeeder::class,
-        ]);
+            AccessibleEmployeeSeeder::class,
 
-        Staff::factory()
-            ->state([
-                'id'      => 999999,
-                // 'faculty_id' => 8,
-                'user_id' => User::factory()->state([
-                    'name'  => 'Admin',
-                    'email' => 'admin@gmail.com',
-                    'role'  => Role::Admin,
-                ]),
-            ])
-            ->create();
-
-        Staff::factory()
-            ->state([
-                'id'      => 99999,
-                // 'faculty_id' => 8,
-                'user_id' => User::factory()->state([
-                    'name'  => 'Staff',
-                    'email' => 'staff@gmail.com',
-                    'role'  => Role::Staff,
-                ]),
-            ])
-            ->create();
-
-        Professor::factory()
-            ->state([
-                'id'         => 99999,
-                'faculty_id' => 8,
-                'user_id'    => User::factory()->state([
-                    'name'  => 'Dosen',
-                    'email' => 'dosen@gmail.com',
-                    'role'  => Role::Professor,
-                ]),
-            ])
-            ->create();
-
-        Student::factory()
-            ->state([
-                'id'               => 99999,
-                'study_program_id' => 25,
-                'user_id'          => User::factory()->state([
-                    'name'  => 'Mahasiswa',
-                    'email' => 'mahasiswa@gmail.com',
-                    'role'  => Role::Student,
-                ]),
-            ])
-            ->create();
-
-        $this->callWithoutContainer([
             StudentSeeder::class,
+
+            SubjectSeeder::class,
+            StudentSubjectSeeder::class,
+            SubjectScheduleSeeder::class,
+            SubjectGroupSeeder::class,
+            PostSeeder::class,
+            SubmissionSeeder::class,
+            AttendanceSeeder::class,
         ]);
     }
 }

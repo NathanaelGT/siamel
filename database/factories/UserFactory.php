@@ -17,11 +17,13 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fn(array $attributes) => (string) str(
-                $this->faker->unique()->name(strtolower($attributes['gender']->name))
-            )
-                ->before('.')
-                ->beforeLast(' '),
+            'name' => function (array $attributes) {
+                $name = $this->faker->unique()->name(strtolower($attributes['gender']->name));
+
+                return ($withoutDegree = strstr($name, '.', true))
+                    ? substr($withoutDegree, 0, mb_strrpos($withoutDegree, ' '))
+                    : $name;
+            },
 
             'email' => fn(array $attributes) => (string) str(
                 str($attributes['name'])

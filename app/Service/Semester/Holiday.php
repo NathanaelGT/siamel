@@ -25,7 +25,7 @@ abstract class Holiday
                 'name' => $year >= 2024
                     ? Str::replace('Isa Al Masih', 'Yesus Kristus', $holiday['keterangan'])
                     : $holiday['keterangan'],
-                'date' => Carbon::parse($holiday['tanggal'])->toDateString(),
+                'date' => Carbon::parse($holiday['tanggal']),
             ], json_decode($response, true));
         });
     }

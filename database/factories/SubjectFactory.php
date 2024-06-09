@@ -10,6 +10,7 @@ use App\Models\Room;
 use App\Models\Semester;
 use App\Service\Subject\Slug;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Subject>
@@ -25,6 +26,7 @@ class SubjectFactory extends Factory
             'room_id'      => fn() => Room::factory(),
             'capacity'     => 50,
             'slug'         => fn($attribute) => Slug::generate(
+                Str::slug($this->faker->paragraph(), language: null, dictionary: []),
                 $this->faker->word(),
                 $this->faker->randomElement(Parity::class),
                 $this->faker->year(),
