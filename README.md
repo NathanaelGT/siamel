@@ -28,8 +28,24 @@
 
 # Installation
 ```shell
+$ git clone https://github.com/nathanaelGT/siamel
 $ php -r "copy('.env.example', '.env');"
 $ composer install
 $ php artisan key:generate
-$ php artisan migrate
+$ php artisan migrate --seed
 ```
+
+# How to Run
+```shell
+$ php artisan serve
+```
+
+# Default Account
+| Jenis Akun       | Email                      | Password |
+|------------------|----------------------------|----------|
+| Admin Global     | admin@siamel.test          | password |
+| Admin Fasilkom   | admin.fasilkom@siamel.test | password |
+| Staff Global     | staff@siamel.test          | password |
+| Staff Fasilkom   | staff.fasilkom@siamel.test | password |
+| Akun Mahasiswa   | [npm]@student.siamel.test  | password |
+| Akun Dosen/Staff | [nip]@siamel.test          | password |
