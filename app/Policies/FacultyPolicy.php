@@ -4,63 +4,48 @@ namespace App\Policies;
 
 use App\Enums\Role;
 use App\Models\Faculty;
+use App\Models\Staff;
 use App\Models\User;
 
 class FacultyPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $user->admin->faculty_id === null;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Faculty $faculty): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $this->adminCanManageFaculty($user->admin, $faculty);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $user->admin->faculty_id === null;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Faculty $faculty): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $this->adminCanManageFaculty($user->admin, $faculty);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Faculty $faculty): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $this->adminCanManageFaculty($user->admin, $faculty);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Faculty $faculty): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $this->adminCanManageFaculty($user->admin, $faculty);
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Faculty $faculty): bool
     {
-        return $user->role === Role::Admin;
+        return $user->role === Role::Admin && $this->adminCanManageFaculty($user->admin, $faculty);
+    }
+
+    protected function adminCanManageFaculty(Staff $admin, Faculty $faculty): bool
+    {
+        return in_array($admin->faculty_id, [null, $faculty->id]);
     }
 }
