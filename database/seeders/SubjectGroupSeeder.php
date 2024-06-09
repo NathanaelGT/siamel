@@ -23,7 +23,7 @@ class SubjectGroupSeeder extends Seeder
 
         $professorCount = $professorIds->count();
         $randomProfessorIds = $professorIds->random(
-            $this->faker->numberBetween($professorCount / 10, $professorCount / 3)
+            $this->faker->numberBetween($professorCount / 8, $professorCount / 2)
         );
 
         $subjectIds = DB::table('subjects')

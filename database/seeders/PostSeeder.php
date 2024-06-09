@@ -82,7 +82,9 @@ class PostSeeder extends Seeder
                     ? $exactTime->toDateTimeString()
                     : $createdAt;
 
-                $type = $this->faker->randomElement(PostType::class);
+                $type = $this->faker->boolean(80)
+                    ? PostType::LearningMaterial
+                    : PostType::Assignment;
 
                 $postCount[$type->name]++;
 
