@@ -15,4 +15,9 @@ class ListAttendances extends ListRecords
             //
         ];
     }
+
+    public function getBreadcrumb(): ?string
+    {
+        return null;
+    }
 }
