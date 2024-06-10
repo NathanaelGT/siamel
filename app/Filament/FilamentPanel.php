@@ -18,7 +18,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Str;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
-use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 abstract class FilamentPanel
 {
@@ -36,7 +35,6 @@ abstract class FilamentPanel
             ->discoverResources(in: app_path("Filament/$name/Resources"), for: "App\\Filament\\$name\\Resources")
             ->unsavedChangesAlerts()
             ->databaseTransactions()
-            ->databaseNotifications()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
