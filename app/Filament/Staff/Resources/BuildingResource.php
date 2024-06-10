@@ -17,7 +17,7 @@ class BuildingResource extends Resource
 
     protected static ?string $navigationGroup = 'Fasilitas';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'lucide-building';
 
     protected static ?int $navigationSort = 3;
 

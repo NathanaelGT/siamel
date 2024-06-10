@@ -21,7 +21,7 @@ class TranscriptResource extends Resource
 {
     protected static ?string $model = Subject::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'lucide-file-text';
 
     protected static ?string $cluster = InformationSystemCluster::class;
 

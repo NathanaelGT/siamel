@@ -24,7 +24,7 @@ class CourseResource extends Resource
 
     protected static ?string $navigationGroup = 'Pendidikan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+    protected static ?string $navigationIcon = 'lucide-book-open';
 
     protected static ?int $navigationSort = 8;
 

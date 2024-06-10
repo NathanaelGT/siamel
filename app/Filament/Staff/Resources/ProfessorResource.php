@@ -25,7 +25,7 @@ class ProfessorResource extends Resource
 
     protected static ?string $navigationGroup = 'Pengguna';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'lucide-user-round';
 
     protected static ?int $navigationSort = 5;
 

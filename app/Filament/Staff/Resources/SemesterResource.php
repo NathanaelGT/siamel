@@ -15,7 +15,7 @@ class SemesterResource extends Resource
 {
     protected static ?string $model = Semester::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'lucide-calendar-days';
 
     protected static ?int $navigationSort = 1;
 

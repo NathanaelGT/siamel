@@ -24,7 +24,7 @@ class StudyProgramResource extends Resource
 
     protected static ?string $navigationGroup = 'Fasilitas';
 
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?string $navigationIcon = 'lucide-graduation-cap';
 
     protected static ?int $navigationSort = 2;
 

@@ -21,7 +21,7 @@ class SubjectResource extends Resource
 
     protected static ?string $navigationGroup = 'Pendidikan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'lucide-book-open-text';
 
     protected static ?int $navigationSort = 7;
 

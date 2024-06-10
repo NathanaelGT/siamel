@@ -25,7 +25,7 @@ class StaffResource extends Resource
 
     protected static ?string $navigationGroup = 'Pengguna';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user';
 
     protected static ?int $navigationSort = 4;
 
