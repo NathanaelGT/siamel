@@ -8,6 +8,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 class StaffPanelProvider extends PanelProvider
 {
@@ -24,6 +25,20 @@ class StaffPanelProvider extends PanelProvider
             ])
             ->widgets([
                 Widgets\AccountWidget::class,
+            ])
+            ->plugins([
+                FilamentFullCalendarPlugin::make()
+                    ->schedulerLicenseKey('GPL-My-Project-Is-Open-Source')
+                    ->plugins([
+                        'dayGrid',
+                        'timeGrid',
+                        'interaction',
+                        'list',
+                        'resourceTimeline',
+                    ])
+                    ->config([
+                        'firstDay' => 0,
+                    ]),
             ]);
     }
 }

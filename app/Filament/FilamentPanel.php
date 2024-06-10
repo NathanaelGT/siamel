@@ -52,19 +52,6 @@ abstract class FilamentPanel
             ->plugins([
                 BreezyCore::make()
                     ->myProfile(hasAvatars: true, slug: 'profil'),
-
-                FilamentFullCalendarPlugin::make()
-                    ->schedulerLicenseKey('GPL-My-Project-Is-Open-Source')
-                    ->plugins([
-                        'dayGrid',
-                        'timeGrid',
-                        'interaction',
-                        'list',
-                        'resourceTimeline',
-                    ])
-                    ->config([
-                        'firstDay' => 0,
-                    ]),
             ]);
     }
 }
