@@ -8,6 +8,7 @@
         "jeffgreco13/filament-breezy": "^2.4",
         "laravel/framework": "^11.5",
         "laravel/tinker": "^2.9",
+        "mallardduck/blade-lucide-icons": "^1.21",
         "malzariey/filament-daterangepicker-filter": "^2.6",
         "saade/filament-fullcalendar": "^3.2",
         "thiktak/filament-simple-list-entry": "dev-fix/has-badge-not-found"
