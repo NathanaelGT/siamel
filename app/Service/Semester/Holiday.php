@@ -17,7 +17,13 @@ abstract class Holiday
         $ttl = 60 * 60 * 24 * 14;
 
         return Cache::driver('file')->remember("holidays-$year", $ttl, function () use ($year) {
-            $response = (new Client)->request('GET', "https://dayoffapi.vercel.app/api?year=$year")
+            $config = [];
+            if ($cerfPath = env('APP_CERTIFICATE_PATH')) {
+                $config['verify'] = $cerfPath;
+            }
+
+            $response = (new Client($config))
+                ->request('GET', "https://dayoffapi.vercel.app/api?year=$year")
                 ->getBody()
                 ->getContents();
 
