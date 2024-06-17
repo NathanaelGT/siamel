@@ -59,3 +59,5 @@ $ php artisan serve
   file `storage/logs/laravel.log`
 - Terdapat beberapa fitur yang hanya dapat dipakai tergantung waktu, misalnya mahasiswa mengatur KRS. Untuk mengecek
   semua fitur tanpa terikat oleh waktu, ubah nilai dari variabel `SIAMEL_BYPASS_PERIOD` pada file `.env` menjadi `true`
+- Jika mengalami masalah sertifikasi saat menjalankan `php artisan migrate --seed`, sertakan path Certificate Authority
+  pada `php.ini` atau pada file `.env` dengan variabel `APP_CERTIFICATE_PATH`
