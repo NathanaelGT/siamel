@@ -30,11 +30,17 @@ class AuthServiceProvider extends ServiceProvider
 
     protected function definePeriodGate(): void
     {
-        $optionalCached = fn(Closure $callback) => function (?User $user) use ($callback) {
-            return once(fn() => $callback($user) ?: Response::denyAsNotFound());
+        $periodCallback = fn(Closure $callback) => function (?User $user) use ($callback) {
+            return once(function () use ($user, $callback) {
+                if (config('siamel.period.bypass_all_gates')) {
+                    return true;
+                }
+
+                return $callback($user) ?: Response::denyAsNotFound();
+            });
         };
 
-        Gate::define(Period::Learning, $optionalCached(function () {
+        Gate::define(Period::Learning, $periodCallback(function () {
             $period = Semester::current()
                 ->schedules()
                 ->whereIn('name', [
@@ -64,7 +70,7 @@ class AuthServiceProvider extends ServiceProvider
                 DB::raw('max(`date`) as `max`'),
             ]));
 
-        Gate::define(Period::KRS, $optionalCached(function () use ($krsPeriod) {
+        Gate::define(Period::KRS, $periodCallback(function () use ($krsPeriod) {
             $period = $krsPeriod();
 
             return now()->isBetween(
@@ -73,7 +79,7 @@ class AuthServiceProvider extends ServiceProvider
             );
         }));
 
-        Gate::define(Period::KRSPreparation, $optionalCached(function () use ($krsPeriod) {
+        Gate::define(Period::KRSPreparation, $periodCallback(function () use ($krsPeriod) {
             $period = $krsPeriod();
 
             return now()->isBetween(
