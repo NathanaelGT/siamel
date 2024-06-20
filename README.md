@@ -34,7 +34,7 @@ $ cd siamel
 $ php -r "copy('.env.example', '.env');"
 $ composer install
 $ php artisan key:generate
-$ php artisan migrate --seed
+$ php artisan migrate:fresh --seed
 ```
 
 # How to Run
@@ -53,6 +53,8 @@ $ php artisan serve
 | Akun Dosen/Staff | [nip]@siamel.test          | password |
 
 # Side Note
+- Jika mendapatkan error `Call to a member function prepare() on null` saat
+  menjalankan `php artisan migrate:fresh --seed`, ulangi command tersebut sekali lagi
 - Untuk melihat daftar NPM dan NIP, dapat login menggunakan akun Admin Global kemudian masuk ke menu
   Staff/Dosen/Mahasiswa
 - Saat staff mendaftarkan akun baru, jika Mailing belum diatur pada file `.env`, maka preview e-mail kan dikirim ke
