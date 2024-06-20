@@ -40,8 +40,6 @@ class ListSubjects extends ListRecords
                     ->collapsible()
                     ->orderQueryUsing(function (Builder $query, string $direction) {
                         $query->orderBy('course_name', $direction)
-                            ->orderByRaw("field(`subjects`.`day`, ?, ?, ?, ?, ?) $direction", WorkingDay::cases())
-                            ->orderBy('subjects.start_time', $direction)
                             ->orderBy('subjects.parallel', $direction);
                     }),
 
