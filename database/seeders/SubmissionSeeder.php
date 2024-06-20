@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AssignmentType;
 use App\Models\Student;
 use App\Models\SubjectGroup;
 use DateInterval;
@@ -37,7 +38,13 @@ class SubmissionSeeder extends Seeder
                 $join->on('posts.subject_id', '=', 'subjects.id')
                     ->where('semester_id', $semesterId);
             })
-            ->get(['assignments.id', 'assignments.deadline', 'posts.published_at', 'posts.subject_id']);
+            ->get([
+                'assignments.id',
+                'assignments.type',
+                'assignments.deadline',
+                'posts.published_at',
+                'posts.subject_id',
+            ]);
 
         $subjectGroupsMap = DB::table('subject_groups')
             ->whereIn('subject_id', $assignments->pluck('subject_id')->all())
@@ -61,7 +68,7 @@ class SubmissionSeeder extends Seeder
             $groupIds = $subjectGroupsMap[$assignment->subject_id] ?? null;
             $studentIds = $subjectStudentsMap[$assignment->subject_id] ?? null;
 
-            if ($groupIds !== null) {
+            if ($assignment->type === AssignmentType::Group->value && $groupIds !== null) {
                 foreach ($groupIds as $groupId) {
                     if ($this->faker->boolean(10)) {
                         continue;
@@ -94,7 +101,7 @@ class SubmissionSeeder extends Seeder
                         'updated_at'          => $submittedAtString,
                     ];
                 }
-            } elseif ($studentIds !== null) {
+            } elseif ($assignment->type === AssignmentType::Individual->value && $studentIds !== null) {
                 foreach ($studentIds as $studentId) {
                     if ($this->faker->boolean(15)) {
                         continue;
