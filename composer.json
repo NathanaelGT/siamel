@@ -4,6 +4,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "fakerphp/faker": "^1.23.1",
         "filament/filament": "^3.2.71",
         "jeffgreco13/filament-breezy": "^2.4",
         "laravel/framework": "^11.5",
@@ -16,7 +17,6 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13.4",
         "doctrine/dbal": "^3.8.3",
-        "fakerphp/faker": "^1.23.1",
         "laravel-lang/lang": "^15.1",
         "lukeraymonddowning/pest-plugin-larastrap": "^0.3.0",
         "mockery/mockery": "^1.6.11",
