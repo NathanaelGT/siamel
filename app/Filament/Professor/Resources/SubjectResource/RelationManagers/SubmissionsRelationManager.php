@@ -29,10 +29,11 @@ class SubmissionsRelationManager extends RelationManager
             ->paginated(false)
             ->columns([
                 Tables\Columns\TextColumn::make('submissionable_id')
-                    ->label('NPM'),
+                    ->label('NPM')
+                    ->visible($this->ownerRecord->assignment->type === AssignmentType::Individual),
 
                 Tables\Columns\TextColumn::make('submissionable.name')
-                    ->label('Nama'),
+                    ->label($this->ownerRecord->assignment->type === AssignmentType::Individual ? 'Nama' : 'Kelompok'),
 
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Terakhir diubah')
