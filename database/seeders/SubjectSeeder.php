@@ -141,7 +141,7 @@ class SubjectSeeder extends Seeder
                         $subjects[] = [
                             'course_id'    => $course->id,
                             'semester_id'  => $semester->id,
-                            'professor_id' => $course->professorIds->random(),
+                            'professor_id' => $professorId,
                             'room_id'      => $room->id,
                             'capacity'     => $room->capacity,
                             'parallel'     => $parallel,
