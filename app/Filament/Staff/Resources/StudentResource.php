@@ -6,7 +6,6 @@ use App\Enums\Gender;
 use App\Enums\StudentStatus;
 use App\Filament\Resource;
 use App\Filament\Staff\Resources\StudentResource\Pages;
-use App\Filament\Staff\Resources\StudentResource\RelationManagers;
 use App\Filament\Tables\Columns\AvatarColumn;
 use App\Models\Student;
 use App\Models\StudyProgram;
@@ -190,9 +189,7 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ScheduleRelationManager::class,
-            RelationManagers\AttendancesRelationManager::class,
-            RelationManagers\TranscriptsRelationManager::class,
+            //
         ];
     }
 

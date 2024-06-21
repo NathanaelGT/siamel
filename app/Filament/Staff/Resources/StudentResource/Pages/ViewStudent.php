@@ -30,4 +30,13 @@ class ViewStudent extends ViewRecord
 
         $this->form->fill($state);
     }
+
+    public function getRelationManagers(): array
+    {
+        return [
+            StudentResource\RelationManagers\ScheduleRelationManager::class,
+            StudentResource\RelationManagers\AttendancesRelationManager::class,
+            StudentResource\RelationManagers\TranscriptsRelationManager::class,
+        ];
+    }
 }
