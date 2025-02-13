@@ -46,7 +46,7 @@ class LocalAverage extends Summarizer
     public function getState(): float
     {
         if ($this->count === 0) {
-            $state = $this->totalValue / $this->totalCount;
+            $state = $this->totalCount ? $this->totalValue / $this->totalCount : 0;
         } else {
             $state = $this->value / $this->count;
 

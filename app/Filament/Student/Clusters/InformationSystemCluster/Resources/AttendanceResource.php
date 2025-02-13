@@ -78,7 +78,9 @@ class AttendanceResource extends Resource
                             ]);
                         });
 
-                        $avgAttendance->increaseValue($attendance);
+                        if ($attendance) {
+                            $avgAttendance->increaseValue($attendance);
+                        }
 
                         return $record->attendance_rate = (int) round($attendance);
                     })
