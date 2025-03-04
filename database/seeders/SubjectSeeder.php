@@ -97,7 +97,7 @@ class SubjectSeeder extends Seeder
                 $spaceAndTimeIndex = 0;
 
                 foreach ($courses as $course) {
-                    $studentCount = $studentCountMap[$course->studyProgramId][$semester->year];
+                    $studentCount = $studentCountMap[$course->studyProgramId][$semester->year] ?? 0;
                     $joined = 0;
 
                     for ($i = 0; $joined < $studentCount; $i++) {
