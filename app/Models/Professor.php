@@ -17,6 +17,9 @@ class Professor extends Model implements Contracts\HasAccountContract
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
+        'user_id',
+        'faculty_id',
         'status',
     ];
 
