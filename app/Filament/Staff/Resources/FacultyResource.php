@@ -2,6 +2,7 @@
 
 namespace App\Filament\Staff\Resources;
 
+use App\Enums\Accreditation;
 use App\Filament\Resource;
 use App\Filament\Staff\Resources\FacultyResource\Pages;
 use App\Filament\Staff\Resources\FacultyResource\RelationManagers;
@@ -31,11 +32,7 @@ class FacultyResource extends Resource
                     ->unique(ignoreRecord: true),
 
                 Forms\Components\Select::make('accreditation')
-                    ->options([
-                        'A',
-                        'B',
-                        'C',
-                    ])
+                    ->options(Accreditation::class)
                     ->default('Tidak ada')
                     ->searchable()
                     ->required(),

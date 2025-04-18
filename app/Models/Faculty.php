@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Enums\Accreditation;
+use App\Observers\FacultyObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy(FacultyObserver::class)]
 class Faculty extends Model
 {
     use HasFactory;
