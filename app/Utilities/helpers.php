@@ -6,7 +6,7 @@ if (! function_exists('normalize_phone_number')) {
     function normalize_phone_number(string $phoneNumber): string
     {
         return (string) str($phoneNumber)
-            ->replace('(+62)', '0')
+            ->replaceMatches('/^\(\+62\)/', '0')
             ->replace([' ', '-'], '');
     }
 }
